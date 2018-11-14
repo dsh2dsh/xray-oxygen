@@ -80,13 +80,15 @@ void CSkeletonX::_Render	(ref_geom& hGeom, u32 vCount, u32 iOffset, u32 pCount)
 			// transfer matrices
 			ref_constant			array	= RCache.get_c(s_bones_array_const);
 			u32						count	= RMS_bonecount;
-			for (u32 mid = 0; mid<count; mid++)	
+			for (u32 mid = 0; mid < count; mid++)
 			{
-				Fmatrix&	M				= Parent->LL_GetTransform_R(u16(mid));
-				u32			id				= mid*3;
-				RCache.set_ca				(&*array,id+0,M._11,M._21,M._31,M._41);
-				RCache.set_ca				(&*array,id+1,M._12,M._22,M._32,M._42);
-				RCache.set_ca				(&*array,id+2,M._13,M._23,M._33,M._43);
+				Fmatrix& M = Parent->LL_GetTransform_R(u16(mid));
+				u32 id = mid * 2;
+				D3DXVECTOR3 scale, translate;
+				D3DXQUATERNION rotate;
+				D3DXMatrixDecompose(&scale, &rotate, &translate, (D3DXMATRIX*)&M);
+				RCache.set_ca(&*array, id + 0, rotate.x, rotate.y, rotate.z, rotate.w);
+				RCache.set_ca(&*array, id + 1, translate.x, translate.y, translate.z, 1.0f);
 			}
 
 			// render
@@ -173,17 +175,11 @@ void CSkeletonX::_Load	(const char* N, IReader *data, u32& dwVertCount)
 
 	// Load vertices
 	R_ASSERT				(data->find_chunk(OGF_VERTICES));
-			
-	//u16			hw_bones_cnt		= u16((HW.Caps.geometry.dwRegisters-22)/3);
-	//	Igor: some shaders in r1 need more free constant registers
-	u16			hw_bones_cnt		= u16((HW.Caps.geometry.dwRegisters-22-3)/3);
-	u16			sw_bones_cnt		= 0;
 
-#ifdef _EDITOR
-	hw_bones_cnt					= 0;
-#endif
+	u16 hw_bones_cnt = u16((HW.Caps.geometry.dwRegisters - 10) / 2);
+	u16 sw_bones_cnt = 0;
+	u32 dwVertType, size, it, crc;
 
-	u32								dwVertType,size,it,crc;
 	dwVertType						= data->r_u32(); 
 	dwVertCount						= data->r_u32();
 
@@ -208,11 +204,6 @@ void CSkeletonX::_Load	(const char* N, IReader *data, u32& dwVertCount)
 
 				sw_bones_cnt		= std::max(sw_bones_cnt, mid);
 			}
-#ifdef _EDITOR
-			// software
-			crc						= crc32	(data->pointer(),size);
-			Vertices1W.create		(crc,dwVertCount,(vertBoned1W*)data->pointer());
-#else
 			if(1==bids.size())	
 			{
 				// HW- single bone
@@ -233,7 +224,6 @@ void CSkeletonX::_Load	(const char* N, IReader *data, u32& dwVertCount)
 				Vertices1W.create				(crc,dwVertCount,(vertBoned1W*)data->pointer());
 				Render->shader_option_skinning	(-1);
 			}
-#endif        
 		}
 		break;
 	case OGF_VERTEXFORMAT_FVF_2L: // 2-Link
