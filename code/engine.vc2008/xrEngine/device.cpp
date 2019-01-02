@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
 #include "../xrCDB/frustum.h"
 #include "xr_input.h"
 #include "DirectXMathExternal.h"
@@ -598,41 +598,41 @@ void CRenderDevice::ProcessSingleMessage()
 		DispatchMessage(&msg);
 	}
 }
-
-void CRenderDevice::OnWM_Activate(WPARAM wParam, LPARAM lParam)
-{
-	u16 fActive						= LOWORD(wParam);
-	extern int ps_always_active;
-	const BOOL fMinimized = (BOOL)HIWORD(wParam);
-	const BOOL isWndActive = (fActive != WA_INACTIVE && !fMinimized) ? TRUE : FALSE;
-	const BOOL isGameActive = ps_always_active || isWndActive;
-
-	if (!editor() && isWndActive) 
-	{
-		ShowCursor(FALSE);
-	}
-	else
-	{
-		ShowCursor(TRUE);
-	}
-
-	if (isGameActive != Device.b_is_Active)
-	{
-		Device.b_is_Active			= isGameActive;
-
-		if (Device.b_is_Active)	
-		{
-			Device.seqAppActivate.Process(rp_AppActivate);
-			app_inactive_time		+= TimerMM.GetElapsed_ms() - app_inactive_time_start;
-
-		}
-		else	
-		{
-			app_inactive_time_start	= TimerMM.GetElapsed_ms();
-			Device.seqAppDeactivate.Process(rp_AppDeactivate);
-		}
-	}
-}
+//
+//void CRenderDevice::OnWM_Activate(WPARAM wParam, LPARAM lParam)
+//{
+//	u16 fActive						= LOWORD(wParam);
+//	extern int ps_always_active;
+//	const BOOL fMinimized = (BOOL)HIWORD(wParam);
+//	const BOOL isWndActive = (fActive != WA_INACTIVE && !fMinimized) ? TRUE : FALSE;
+//	const BOOL isGameActive = ps_always_active || isWndActive;
+//
+//	if (!editor() && isWndActive) 
+//	{
+//		ShowCursor(FALSE);
+//	}
+//	else
+//	{
+//		ShowCursor(TRUE);
+//	}
+//
+//	if (isGameActive != Device.b_is_Active)
+//	{
+//		Device.b_is_Active			= isGameActive;
+//
+//		if (Device.b_is_Active)	
+//		{
+//			Device.seqAppActivate.Process(rp_AppActivate);
+//			app_inactive_time		+= TimerMM.GetElapsed_ms() - app_inactive_time_start;
+//
+//		}
+//		else	
+//		{
+//			app_inactive_time_start	= TimerMM.GetElapsed_ms();
+//			Device.seqAppDeactivate.Process(rp_AppDeactivate);
+//		}
+//	}
+//}
 
 void CRenderDevice::AddSeqFrame			( pureFrame* f, bool mt )
 {

@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
 
 #include "../Include/xrRender/DrawUtils.h"
 #include "render.h"
@@ -44,6 +44,8 @@ void CRenderDevice::Destroy	(void) {
 	RenderFactory->DestroyRenderDeviceRender(m_pRender);
 	m_pRender = 0;
 	xr_delete					(Statistic);
+
+    DestroyEngineWindow();
 }
 
 #include "IGame_Level.h"
