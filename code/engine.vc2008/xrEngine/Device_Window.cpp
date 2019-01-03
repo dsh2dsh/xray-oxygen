@@ -296,10 +296,13 @@ bool CRenderDevice::CreateEngineWindow( HWND hWndParent, s32 Width, s32 Height  
     s32 WindowRectWidth = MainWindowWidth;
     s32 WindowRectHeight = MainWindowHeight;
 
-    if ( MainWindowParent ) {
-        MainWindowStyle |= WS_CHILD;
-        if (IsDebuggerPresent()) MainWindowStyleEx = 0; // todo удалить
-    } else {
+	if (MainWindowParent)
+	{
+		MainWindowStyle |= WS_CHILD;
+		if (IsDebuggerPresent()) MainWindowStyleEx = 0; // todo удалить
+	}
+	else 
+	{
         MainWindowStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX ;
         MainWindowStyle |= WS_THICKFRAME | WS_MAXIMIZEBOX; // support window resize
 

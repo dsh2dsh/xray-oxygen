@@ -25,11 +25,14 @@ bool IsProcessWithAdminPrivilege()
 void CheckOpenAL()
 {
 	TCHAR szOpenALDir[MAX_PATH] = { 0 };
+	TCHAR szOpenALDir2[MAX_PATH] = { 0 };
 	R_ASSERT(GetSystemDirectory(szOpenALDir, MAX_PATH * sizeof(TCHAR)));
 
 #ifndef UNICODE 
+	_snprintf_s(szOpenALDir2, MAX_PATH * sizeof(CHAR), "%s%s", szOpenALDir, "\\wrap_oal.dll");
 	_snprintf_s(szOpenALDir, MAX_PATH * sizeof(CHAR), "%s%s", szOpenALDir, "\\OpenAL32.dll");
 #else
+	_snwprintf_s(szOpenALDir2, MAX_PATH * sizeof(WCHAR), L"%s%s", szOpenALDir, L"\\wrap_oal.dll");
 	_snwprintf_s(szOpenALDir, MAX_PATH * sizeof(WCHAR), L"%s%s", szOpenALDir, L"\\OpenAL32.dll");
 #endif
 	DWORD dwOpenALInstalled = GetFileAttributes(szOpenALDir);
@@ -59,22 +62,25 @@ void CheckOpenAL()
 		}
 
 		TCHAR szPath[MAX_PATH] = { 0 };
+		TCHAR szPath2[MAX_PATH] = { 0 };
 		GetModuleFileName(GetModuleHandle(nullptr), szPath, MAX_PATH);
 		PathRemoveFileSpec(szPath);
 
 #ifndef UNICODE 
+		_snprintf_s(szPath2, MAX_PATH * sizeof(CHAR), "%s%s", szPath, "\\wrap_oal.dll");
 		_snprintf_s(szPath, MAX_PATH * sizeof(CHAR), "%s%s", szPath, "\\OpenAL32.dll");
 #else
+		_snwprintf_s(szPath2, MAX_PATH * sizeof(WCHAR), L"%s%s", szPath, L"\\wrap_oal.dll");
 		_snwprintf_s(szPath, MAX_PATH * sizeof(WCHAR), L"%s%s", szPath, L"\\OpenAL32.dll");
 #endif
 
 		dwOpenALInstalled = GetFileAttributes(szPath);
 		if (dwOpenALInstalled == INVALID_FILE_ATTRIBUTES)
 		{
-			MessageBox(nullptr,
-				TEXT("ENG: X-Ray Oxygen can't detect OpenAL library. Please, specify path to installer manually. \n")
-				TEXT("RUS: X-Ray Oxygen не смог обнаружить библиотеку OpenAL. Пожалуйста, укажите путь до установщика самостоятельно."),
-				TEXT("OpenAL Not Found!"),
+			MessageBoxW(nullptr,
+				L"ENG: X-Ray Oxygen can't detect OpenAL library. Please, specify path to installer manually. \n"
+				L"RUS: X-Ray Oxygen не смог обнаружить библиотеку OpenAL. Пожалуйста, укажите путь до установщика самостоятельно.",
+				L"OpenAL Not Found!",
 				MB_OK | MB_ICONERROR
 			);
 
@@ -118,31 +124,43 @@ void CheckOpenAL()
 		{
 			DWORD LibrarySize = 0;
 			HANDLE hFile = CreateFile(szPath, GENERIC_READ, NULL, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+			HANDLE hFile2 = CreateFile(szPath2, GENERIC_READ, NULL, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 			R_ASSERT(hFile != INVALID_HANDLE_VALUE);
+			R_ASSERT(hFile2 != INVALID_HANDLE_VALUE);
 
 			FILE_STANDARD_INFO fileInfo = { 0 };
+			FILE_STANDARD_INFO fileInfo2 = { 0 };
 			GetFileInformationByHandleEx(hFile, FileStandardInfo, &fileInfo, sizeof(fileInfo));
+			GetFileInformationByHandleEx(hFile2, FileStandardInfo, &fileInfo2, sizeof(fileInfo2));
 
 			LPVOID pImage = HeapAlloc(GetProcessHeap(), 0, fileInfo.EndOfFile.QuadPart);
+			LPVOID pImage2 = HeapAlloc(GetProcessHeap(), 0, fileInfo2.EndOfFile.QuadPart);
 			ReadFile(hFile, pImage, fileInfo.EndOfFile.QuadPart, &LibrarySize, nullptr);
+			ReadFile(hFile2, pImage2, fileInfo2.EndOfFile.QuadPart, &LibrarySize, nullptr);
 
 			CloseHandle(hFile);
+			CloseHandle(hFile2);
 
 			hFile = CreateFile(szOpenALDir, GENERIC_WRITE, NULL, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+			hFile2 = CreateFile(szOpenALDir2, GENERIC_WRITE, NULL, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 			R_ASSERT(hFile != INVALID_HANDLE_VALUE);
+			R_ASSERT(hFile2 != INVALID_HANDLE_VALUE);
 
 			WriteFile(hFile, pImage, fileInfo.EndOfFile.QuadPart, &LibrarySize, nullptr);
+			WriteFile(hFile2, pImage2, fileInfo2.EndOfFile.QuadPart, &LibrarySize, nullptr);
 
 			HeapFree(GetProcessHeap(), 0, pImage);
+			HeapFree(GetProcessHeap(), 0, pImage2);
 			CloseHandle(hFile);
+			CloseHandle(hFile2);
 		}
 
 		if ((dwOpenALInstalled = GetFileAttributes(szOpenALDir) == INVALID_FILE_ATTRIBUTES))
 		{
-			MessageBox(nullptr,
-				TEXT("ENG: X-Ray Oxygen can't detect OpenAL library. Please, re-install library manually. \n")
-				TEXT("RUS: X-Ray Oxygen не смог обнаружить библиотеку OpenAL. Пожалуйста, переустановите библиотеку самостоятельно."),
-				TEXT("OpenAL Not Found!"),
+			MessageBoxW(nullptr,
+				L"ENG: X-Ray Oxygen can't detect OpenAL library. Please, re-install library manually. \n"
+				L"RUS: X-Ray Oxygen не смог обнаружить библиотеку OpenAL. Пожалуйста, переустановите библиотеку самостоятельно.",
+				L"OpenAL Not Found!",
 				MB_OK | MB_ICONERROR
 			);
 
