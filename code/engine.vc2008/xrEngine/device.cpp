@@ -10,7 +10,6 @@
 #define MMNOJOY
 /////////////////////////////////////
 #include <mmsystem.h>
-#include <d3dx9.h>
 /////////////////////////////////////
 #pragma warning(default:4995)
 /////////////////////////////////////
@@ -40,26 +39,6 @@ ref_light	precache_light	= nullptr;
 
 BOOL CRenderDevice::Begin	()
 {
-	switch (m_pRender->GetDeviceState())
-	{
-	case IRenderDeviceRender::dsOK:
-		break;
-
-	case IRenderDeviceRender::dsLost:
-		// If the device was lost, do not render until we get it back
-		Sleep(33);
-		return FALSE;
-		break;
-
-	case IRenderDeviceRender::dsNeedReset:
-		// Check if the device is ready to be reset
-		Reset();
-		break;
-
-	default:
-		R_ASSERT(0);
-	}
-
 	m_pRender->Begin();
 
 	FPU::m24r();

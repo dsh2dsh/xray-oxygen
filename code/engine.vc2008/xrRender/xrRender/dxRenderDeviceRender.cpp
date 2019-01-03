@@ -79,11 +79,6 @@ void dxRenderDeviceRender::OnDeviceDestroy( BOOL bKeepTextures)
 	RCache.OnDeviceDestroy();
 }
 
-void dxRenderDeviceRender::ValidateHW()
-{
-	HW.Validate();
-}
-
 void dxRenderDeviceRender::DestroyHW()
 {
 	xr_delete					(Resources);
@@ -179,13 +174,6 @@ void dxRenderDeviceRender::ResourcesDeferredUpload()
 void dxRenderDeviceRender::ResourcesStoreNecessaryTextures()
 {
 	dxRenderDeviceRender::Instance().Resources->StoreNecessaryTextures();
-}
-
-dxRenderDeviceRender::DeviceState dxRenderDeviceRender::GetDeviceState()
-{
-	HW.Validate();
-
-	return dsOK;
 }
 
 BOOL dxRenderDeviceRender::GetForceGPU_REF()

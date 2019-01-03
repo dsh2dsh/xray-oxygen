@@ -437,7 +437,7 @@ class CCC_Renderer : public CCC_Token
 public:
 	CCC_Renderer(LPCSTR N) : inherited(N, &renderer_value, NULL)
 	{
-		renderer_value = 3; 
+		renderer_value = 0; 
 	};
 	virtual ~CCC_Renderer()
 	{
@@ -456,7 +456,7 @@ public:
 			psDeviceFlags.set(rsR4, (renderer_value == 0));
             psDeviceFlags.set(rsR4ext, (renderer_value == 1));
 
-			r2_advanced_pp = (renderer_value >= 3);
+			r2_advanced_pp = TRUE;
 
 			isLoaded--;
 		}

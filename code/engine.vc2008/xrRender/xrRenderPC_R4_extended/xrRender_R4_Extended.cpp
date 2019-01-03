@@ -1,5 +1,5 @@
 #include "stdafx.h"
-//#include "../xrRender/dxRenderFactory.h"
+#include "../xrRender/dxRenderFactory.h"
 //#include "../xrRender/dxUIRender.h"
 //#include "../xrRender/dxDebugRender.h"
 
@@ -10,9 +10,9 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserve
     switch (ul_reason_for_call)
     {
         case DLL_PROCESS_ATTACH	:
-            /*::Render					= &RImplementation;
+            ::Render					= &RImplementation;
             ::RenderFactory				= &RenderFactoryImpl;
-            ::DU						= &DUImpl;
+            /*::DU						= &DUImpl;
             UIRender					= &UIRenderImpl;
             DRender						= &DebugRenderImpl;
             xrRender_initconsole		();*/

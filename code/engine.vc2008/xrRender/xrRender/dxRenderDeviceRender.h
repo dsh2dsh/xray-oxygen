@@ -39,7 +39,6 @@ public:
 
 	//	Destroy
 	virtual void	OnDeviceDestroy( BOOL bKeepTextures);
-	virtual void	ValidateHW();
 	virtual void	DestroyHW();
 	virtual void	Reset( HWND hWnd, u32 &dwWidth, u32 &dwHeight, float &fWidth_2, float &fHeight_2);
 
@@ -63,7 +62,6 @@ public:
 	virtual bool	HWSupportsShaderYUV2RGB();
 
 	//	Device state
-	virtual DeviceState GetDeviceState();
 	virtual BOOL	GetForceGPU_REF();
 	virtual u32		GetCacheStatPolys();
 	virtual void	Begin();

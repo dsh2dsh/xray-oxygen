@@ -521,7 +521,6 @@ public:
 	}
 };
 
-#include "r__pixel_calculator.h"
 class CCC_BuildSSA : public IConsole_Command
 {
 public:

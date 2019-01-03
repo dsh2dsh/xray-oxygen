@@ -37,9 +37,6 @@ public:
 
 	void					FillVidModeList			();
 	void					FreeVidModeList			();
-
-	void	                Validate(void)	{};
-
 //	Variables section
 public:
 	IDXGIAdapter1*			m_pAdapter;	//	pD3D equivalent
@@ -48,7 +45,8 @@ public:
 	IDXGISwapChain*         m_pSwapChain;
 	ID3D11RenderTargetView*	pBaseRT;	//	combine with DX9 pBaseRT via typedef
 	ID3D11DepthStencilView*	pBaseZB;
-
+	ID3DUserDefinedAnnotation* Annotation = nullptr;
+	
 	CHWCaps					Caps;
 
 	D3D_DRIVER_TYPE			m_DriverType;	//	DevT equivalent

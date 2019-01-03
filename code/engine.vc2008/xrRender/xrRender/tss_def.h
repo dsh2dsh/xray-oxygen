@@ -38,8 +38,7 @@ public:
 	void					set_SAMP(u32 a, u32 b, u32 c);
 	BOOL					equal	(SimulatorStates& S);
 	void					clear	();
-	IDirect3DStateBlock9*	record	();
-
+	
 	void	UpdateState( dx10State &state) const;
 	void	UpdateDesc( D3D_RASTERIZER_DESC &desc ) const;
 	void	UpdateDesc( D3D_DEPTH_STENCIL_DESC &desc ) const;

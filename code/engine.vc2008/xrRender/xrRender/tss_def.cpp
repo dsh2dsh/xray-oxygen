@@ -3,13 +3,6 @@
 
 #include "tss_def.h"
 
-IDirect3DStateBlock9* SimulatorStates::record	()
-{
-//	TODO: DX10: Implement equivalent for SimulatorStates::record for DX10
-	//VERIFY(!"SimulatorStates::record not implemented!");
-	return 0;
-}
-
 void	SimulatorStates::set_RS	(u32 a, u32 b)
 {
 	// Search duplicates

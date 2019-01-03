@@ -340,37 +340,6 @@ void	CResourceManager::_DeleteRT		(const CRT* RT)
 
 void	CResourceManager::DBG_VerifyGeoms	() {}
 
-SGeometry*	CResourceManager::CreateGeom	(D3DVERTEXELEMENT9* decl, IDirect3DVertexBuffer9* vb, IDirect3DIndexBuffer9* ib)
-{
-	R_ASSERT			(decl && vb);
-
-	SDeclaration* dcl	= _CreateDecl			(decl);
-	u32 vb_stride		= D3DXGetDeclVertexSize	(decl,0);
-
-	// ***** first pass - search already loaded shader
-	for (u32 it=0; it<v_geoms.size(); it++)
-	{
-		SGeometry& G	= *(v_geoms[it]);
-		if ((G.dcl==dcl) && (G.vb==vb) && (G.ib==ib) && (G.vb_stride==vb_stride))	return v_geoms[it];
-	}
-
-	SGeometry *Geom		=	xr_new<SGeometry>	();
-	Geom->dwFlags		|=	xr_resource_flagged::RF_REGISTERED;
-	Geom->dcl			=	dcl;
-	Geom->vb			=	vb;
-	Geom->vb_stride		=	vb_stride;
-	Geom->ib			=	ib;
-	v_geoms.push_back	(Geom);
-	return	Geom;
-}
-SGeometry*	CResourceManager::CreateGeom		(u32 FVF, IDirect3DVertexBuffer9* vb, IDirect3DIndexBuffer9* ib)
-{
-	D3DVERTEXELEMENT9	dcl	[MAX_FVF_DECL_SIZE];
-	CHK_DX				(D3DXDeclaratorFromFVF(FVF,dcl));
-	SGeometry* g		=  CreateGeom	(dcl,vb,ib);
-	return	g;
-}
-
 void		CResourceManager::DeleteGeom		(const SGeometry* Geom)
 {
 	if (0==(Geom->dwFlags&xr_resource_flagged::RF_REGISTERED))	return;

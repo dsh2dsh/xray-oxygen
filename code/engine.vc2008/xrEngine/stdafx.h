@@ -59,7 +59,6 @@ extern ENGINE_API CInifile *pGameIni;
 #pragma comment( lib, "winmm.lib"	)
 #ifndef ENGINE_BUILD
 #pragma comment( lib, "xrScripts.lib")
-#pragma comment( lib, "d3d9.lib"	 )
 #pragma comment( lib, "dinput8.lib"	 )
 #pragma comment( lib, "dxguid.lib"	 )
 #endif

@@ -18,10 +18,6 @@ struct DM1024
 	string1024	sm_buffer;
 } g_dm;
 
-#ifdef DEBUG
-IDirect3DStateBlock9*	dwDebugSB = 0;
-#endif
-
 CHW::CHW() : pD3D(nullptr), pDevice(nullptr), pBaseRT(nullptr), pBaseZB(nullptr), m_move_window(true)
 {
 }
@@ -37,9 +33,6 @@ void CHW::ResizeWindowProc(WORD h, WORD w)
 
 void CHW::Reset(HWND hwnd)
 {
-#ifdef DEBUG
-	_RELEASE(dwDebugSB);
-#endif
 	_RELEASE(pBaseZB);
 	_RELEASE(pBaseRT);
 
@@ -62,9 +55,6 @@ void CHW::Reset(HWND hwnd)
 
 	R_CHK(pDevice->GetRenderTarget(0, &pBaseRT));
 	R_CHK(pDevice->GetDepthStencilSurface(&pBaseZB));
-#ifdef DEBUG
-	R_CHK(pDevice->CreateStateBlock(D3DSBT_ALL, &dwDebugSB));
-#endif
 }
 
 #include "../../xrCore/xrAPI.h"
@@ -117,10 +107,7 @@ void	CHW::DestroyDevice()
 
 	_SHOW_REF("refCount:pBaseRT", pBaseRT);
 	_RELEASE(pBaseRT);
-#ifdef DEBUG
-	_SHOW_REF("refCount:dwDebugSB", dwDebugSB);
-	_RELEASE(dwDebugSB);
-#endif
+
 #ifdef _EDITOR
 	_RELEASE(HW.pDevice);
 #else
@@ -290,9 +277,6 @@ void CHW::CreateDevice(HWND m_hWnd, bool move_window)
 	}
 
 	// Capture misc data
-#ifdef DEBUG
-	R_CHK(pDevice->CreateStateBlock(D3DSBT_ALL, &dwDebugSB));
-#endif
 	R_CHK(pDevice->GetRenderTarget(0, &pBaseRT));
 	R_CHK(pDevice->GetDepthStencilSurface(&pBaseZB));
 	u32	memory = pDevice->GetAvailableTextureMem();
