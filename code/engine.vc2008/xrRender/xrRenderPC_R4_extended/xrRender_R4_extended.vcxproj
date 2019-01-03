@@ -19,6 +19,7 @@
     <ClCompile Include="xrRender_R4_Extended.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\xrRenderApi\RenderApi.h" />
     <ClInclude Include="r4_extended.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>

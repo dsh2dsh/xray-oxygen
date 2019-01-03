@@ -7,6 +7,12 @@
     <Filter Include="Core">
       <UniqueIdentifier>{f6ac7019-73b3-45d1-9743-86a6883fcc7b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="RenderApi">
+      <UniqueIdentifier>{79c03dd4-8bd5-416a-9fd2-86bd4920d7ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RenderApiOnDX11">
+      <UniqueIdentifier>{f6577349-3a05-4db8-adb2-1d4624e97e69}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="xrRender_R4_Extended.cpp">
@@ -25,6 +31,9 @@
     </ClInclude>
     <ClInclude Include="r4_extended.h">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\xrRenderApi\RenderApi.h">
+      <Filter>RenderApi</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
