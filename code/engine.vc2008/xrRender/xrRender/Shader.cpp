@@ -52,7 +52,6 @@ BOOL SPass::equal(const SPass& other)
 	if (vs != other.vs)			
 		return FALSE;
 
-#ifdef USE_DX11
 	if (gs != other.gs)			
 		return FALSE;
 
@@ -65,7 +64,6 @@ BOOL SPass::equal(const SPass& other)
 	if (cs != other.cs)			
 		return FALSE;
 
-#endif
 	if (constants != other.constants)		
 		return FALSE;	// is this nessesary??? (ps+vs already combines)
 

@@ -141,6 +141,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Physical External", "Physic
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xrShaders", "engine.vc2008\xrRender\xrShaders\xrShaders.vcxproj", "{58818F0E-2DA2-48E4-9BB8-4D7629426F25}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xrRender_R4_extended", "engine.vc2008\xrRender\xrRenderPC_R4_extended\xrRender_R4_extended.vcxproj", "{FACE0F0E-39F3-4DF9-862A-B0641D4F592F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -315,6 +317,12 @@ Global
 		{58818F0E-2DA2-48E4-9BB8-4D7629426F25}.Debug|x64.Build.0 = Debug|x64
 		{58818F0E-2DA2-48E4-9BB8-4D7629426F25}.Mixed|x64.ActiveCfg = Release|x64
 		{58818F0E-2DA2-48E4-9BB8-4D7629426F25}.Release|x64.ActiveCfg = Release|x64
+		{FACE0F0E-39F3-4DF9-862A-B0641D4F592F}.Debug|x64.ActiveCfg = Debug|x64
+		{FACE0F0E-39F3-4DF9-862A-B0641D4F592F}.Debug|x64.Build.0 = Debug|x64
+		{FACE0F0E-39F3-4DF9-862A-B0641D4F592F}.Mixed|x64.ActiveCfg = Release|x64
+		{FACE0F0E-39F3-4DF9-862A-B0641D4F592F}.Mixed|x64.Build.0 = Release|x64
+		{FACE0F0E-39F3-4DF9-862A-B0641D4F592F}.Release|x64.ActiveCfg = Release|x64
+		{FACE0F0E-39F3-4DF9-862A-B0641D4F592F}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -340,6 +348,7 @@ Global
 		{A5E0EC2A-4783-4A53-AE1E-228464FC8F69} = {9A6A94C9-26FC-450C-986F-AA512F84C030}
 		{4983DCA1-9704-4220-8AF7-4001775FD3F5} = {9A6A94C9-26FC-450C-986F-AA512F84C030}
 		{58818F0E-2DA2-48E4-9BB8-4D7629426F25} = {FB339160-99FE-47BD-B161-B3EB1C4C5974}
+		{FACE0F0E-39F3-4DF9-862A-B0641D4F592F} = {7A76B1EB-9731-4FA0-8B13-5B5046FF7FC6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DC8D3737-61A4-4A70-AE4C-C66D5F07767A}

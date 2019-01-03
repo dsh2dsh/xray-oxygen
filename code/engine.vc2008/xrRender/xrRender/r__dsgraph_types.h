@@ -26,15 +26,11 @@ namespace R_dsgraph
 		dxRender_Visual*		pVisual;
 	};
 
-//	DX10 needs shader signature to propperly bind deometry to shader
-#ifdef USE_DX11
 	typedef	SVS*					vs_type;
 	typedef	ID3DGeometryShader*		gs_type;
 	typedef	ID3D11HullShader*		hs_type;
 	typedef	ID3D11DomainShader*		ds_type;
-#else
-	typedef	ID3DVertexShader*		vs_type;
-#endif
+
 
 	typedef	ID3DPixelShader*		ps_type;
 
@@ -46,7 +42,6 @@ namespace R_dsgraph
 	struct mapNormalStates : public xr_unordered_map<ref_state*, mapNormalTextures> { float ssa; };
 	struct mapNormalCS : public xr_unordered_map<R_constant_table*, mapNormalStates> { float ssa; };
 
-#ifdef USE_DX11
 	struct mapNormalAdvStages
 	{
 		hs_type hs;
@@ -55,16 +50,8 @@ namespace R_dsgraph
 	};
 
 	struct mapNormalPS : public xr_unordered_map<ps_type, mapNormalAdvStages> { float ssa; };
-#else
-	struct mapNormalPS : public xr_unordered_map<ps_type, mapNormalCS> { float ssa; };
-#endif
-
-#ifdef USE_DX11
 	struct mapNormalGS : public xr_unordered_map<gs_type, mapNormalPS> { float ssa; };
 	struct mapNormalVS : public xr_unordered_map<vs_type, mapNormalGS> {};
-#else
-	struct mapNormalVS : public xr_unordered_map<vs_type, mapNormalPS> {};
-#endif
 
 	using mapNormal_T = mapNormalVS;
 	using mapNormalPasses_T = mapNormal_T[SHADER_PASSES_MAX];
@@ -77,7 +64,6 @@ namespace R_dsgraph
 	struct mapMatrixStates : public xr_unordered_map<ref_state*, mapMatrixTextures> { float ssa; };
 	struct mapMatrixCS : public xr_unordered_map<R_constant_table*, mapMatrixStates> { float ssa; };
 
-#ifdef USE_DX11
 	struct mapMatrixAdvStages
 	{
 		hs_type hs;
@@ -86,16 +72,9 @@ namespace R_dsgraph
 	};
 
 	struct mapMatrixPS : public xr_unordered_map<ps_type, mapMatrixAdvStages> { float ssa; };
-#else
-	struct mapMatrixPS : public xr_unordered_map<ps_type, mapMatrixCS> { float ssa; };
-#endif
-
-#ifdef USE_DX11
 	struct mapMatrixGS : public xr_unordered_map<gs_type, mapMatrixPS> { float ssa; };
 	struct mapMatrixVS : public xr_unordered_map<vs_type, mapMatrixGS> {};
-#else
-	struct mapMatrixVS : public xr_unordered_map<vs_type, mapMatrixPS> {};
-#endif
+
 
 	using mapMatrix_T = mapMatrixVS;
 	using mapMatrixPasses_T = mapMatrix_T[SHADER_PASSES_MAX];

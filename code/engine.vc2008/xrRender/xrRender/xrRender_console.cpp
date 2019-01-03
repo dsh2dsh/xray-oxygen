@@ -69,9 +69,7 @@ xr_token qssao_token[] =
 	{ "st_opt_low",		1	},
 	{ "st_opt_medium",	2	},
 	{ "st_opt_high",	3	},
-#ifdef USE_DX11
 	{ "st_opt_ultra",	4	},
-#endif
 	{ 0,				0	}
 };
 
@@ -81,10 +79,8 @@ xr_token qsun_quality_token[] =
 	{ "st_opt_low",		0	},
 	{ "st_opt_medium",	1	},
 	{ "st_opt_high",	2	},
-#ifdef USE_DX11
 	{ "st_opt_ultra",	3	},
 	{ "st_opt_extreme",	4	},
-#endif
 	{ 0,				0	}
 };
 
@@ -319,9 +315,7 @@ Flags32	ps_r4_flags =
 #include	"../../xrEngine/xr_ioconsole.h"
 #include	"../../xrEngine/xr_ioc_cmd.h"
 
-#ifdef USE_DX11
 #include "../xrRenderDX10/StateManager/dx10SamplerStateCache.h"
-#endif
 
 //-----------------------------------------------------------------------
 // KD
@@ -359,12 +353,8 @@ public:
 
 		int	val = *value;
 		clamp(val, 1, 16);
-#ifdef USE_DX11
+
 		SSManager.SetMaxAnisotropy(val);
-#else
-		for (u32 i=0; i<HW.Caps.raster.dwStages; i++)
-			CHK_DX(HW.pDevice->SetSamplerState( i, D3DSAMP_MAXANISOTROPY, val));
-#endif
 	}
 	CCC_tf_Aniso(LPCSTR N, int*	v) : CCC_Integer(N, v, 1, 16) {};
 	virtual void Execute	(LPCSTR args)
@@ -383,15 +373,9 @@ class CCC_tf_MipBias: public CCC_Float
 public:
 	void apply()
 	{
-		if (0==HW.pDevice)
-			return;
+		if (0==HW.pDevice) return;
 
-#ifdef USE_DX11
 		SSManager.SetMipLODBias(*value);
-#else
-		for (u32 i=0; i<HW.Caps.raster.dwStages; i++)
-			CHK_DX(HW.pDevice->SetSamplerState( i, D3DSAMP_MIPMAPLODBIAS, *((LPDWORD) value)));
-#endif
 	}
 
 	CCC_tf_MipBias(LPCSTR N, float*	v) : CCC_Float(N, v, -3.0f, 3.0f) {};
@@ -544,11 +528,6 @@ public:
 	CCC_BuildSSA(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = TRUE; };
 	virtual void Execute(LPCSTR args) 
 	{
-#ifndef USE_DX11
-		//	TODO: DX11: Implement pixel calculator
-		r_pixel_calculator c;
-		c.run();
-#endif
 	}
 };
 

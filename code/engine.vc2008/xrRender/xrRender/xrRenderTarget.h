@@ -30,8 +30,6 @@ public:
 	IBlender*					b_accum_reflected;
 	IBlender*					b_ssao;
 	IBlender*					b_combine;
-
-#ifdef USE_DX11
 	IBlender*					b_ssao_msaa[8];
 	IBlender*					b_combine_msaa[8];
 	IBlender*					b_accum_mask_msaa[8];
@@ -42,9 +40,7 @@ public:
 	IBlender*					b_accum_volumetric_msaa[8];
 	IBlender*					b_accum_point_msaa[8];
 	IBlender*					b_accum_reflected_msaa[8];
-#else
-	IBlender*					b_accum_direct_cascade;
-#endif
+
 
 #ifdef DEBUG
 	struct		dbg_line_t 
@@ -267,15 +263,6 @@ public:
 	void						u_calc_tc_duality_ss	(Fvector2& r0, Fvector2& r1, Fvector2& l0, Fvector2& l1);
 	BOOL						u_need_PP				();
 	bool						u_need_CM				();
-
-#ifndef USE_DX11
-	void						enable_dbt_bounds		(light* L);
-	void						u_stencil_optimize		(BOOL common_stencil = TRUE);
-	BOOL						u_DBT_enable			(float zMin, float zMax);
-	void						u_DBT_disable			();
-
-	IDirect3DSurface9*			rt_smap_ZB;		//
-#endif
 
 	void						phase_scene_prepare		();
 	void						phase_scene_begin		();

@@ -6,30 +6,8 @@
 IDirect3DStateBlock9* SimulatorStates::record	()
 {
 //	TODO: DX10: Implement equivalent for SimulatorStates::record for DX10
-#ifdef USE_DX11
 	//VERIFY(!"SimulatorStates::record not implemented!");
 	return 0;
-#else
-	CHK_DX(HW.pDevice->BeginStateBlock());
-	for (u32 it=0; it<States.size(); it++)
-	{
-		State& S	= States[it];
-		switch (S.type)
-		{
-		case 0:	CHK_DX(HW.pDevice->SetRenderState		((D3DRENDERSTATETYPE)S.v1,S.v2));				break;
-		case 1: CHK_DX(HW.pDevice->SetTextureStageState	(S.v1,(D3DTEXTURESTAGESTATETYPE)S.v2,S.v3));	break;
-		case 2: 
-			{
-				CHK_DX(HW.pDevice->SetSamplerState		(S.v1,
-														(D3DSAMPLERSTATETYPE)S.v2,
-														((D3DSAMPLERSTATETYPE)S.v2==D3DSAMP_MAGFILTER&&S.v3==D3DTEXF_ANISOTROPIC)?D3DTEXF_LINEAR:S.v3));
-			}break;
-		}
-	}
-	IDirect3DStateBlock9*	SB = 0;
-	CHK_DX	(HW.pDevice->EndStateBlock(&SB));
-	return	SB;
-#endif
 }
 
 void	SimulatorStates::set_RS	(u32 a, u32 b)
@@ -97,8 +75,6 @@ void	SimulatorStates::clear	()
 {
 	States.clear();
 }
-
-#ifdef USE_DX11
 
 #include "../xrRenderDX10/dx10StateUtils.h"
 
@@ -462,4 +438,3 @@ void SimulatorStates::UpdateDesc( D3D_SAMPLER_DESC descArray[D3D_COMMONSHADER_SA
 	}
 }
 
-#endif

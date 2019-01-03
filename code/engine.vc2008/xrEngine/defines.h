@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 ENGINE_API	extern bool			bDebug;
 
 #define _RELEASE(x)			{ if(x) { (x)->Release(); (x)=NULL; } }
@@ -27,7 +27,8 @@ enum: unsigned long
 
 	rsCameraPos						= (1<<18),
 	rsRefresh120hz					= (1<<19),
-	rsR2							= (1<<20),
+    
+    rsR4ext							= (1<<21), // frowrik add
 	rsR4							= (1<<22), // was reserved to Editor
 	rsDrawFPS						= (1<<23), // was reserved to Editor
 	rsHWInfo						= (1<<24)

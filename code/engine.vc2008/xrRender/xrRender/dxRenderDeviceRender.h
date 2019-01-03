@@ -23,11 +23,8 @@ public:
 	virtual void	Copy(IRenderDeviceRender &_in);
 
 	//	Gamma correction functions
-#ifdef USE_DX11
 	virtual DXGI_GAMMA_CONTROL	GetGammaLUT() const;
-#else
-	virtual D3DGAMMARAMP		GetGammaLUT() const;
-#endif
+
 	virtual float	GetGamma		() const;
 	virtual float	GetBrightness	() const;
 	virtual float	GetContrast		() const;

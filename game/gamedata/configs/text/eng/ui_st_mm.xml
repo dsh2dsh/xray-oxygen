@@ -600,6 +600,9 @@
 	<string id="renderer_r4">
 		<text>Enhanced full dyn. lighting (DX11)</text>
 	</string>
+	<string id="renderer_r4_extended">
+		<text>New render (DX11)</text>
+	</string>
 	<string id="mp_please_login">
 		<text>Please login to connect to the external server.</text>
 	</string>

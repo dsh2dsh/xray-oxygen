@@ -7,8 +7,6 @@ IC HRESULT BeginQuery( ID3DQuery *pQuery);
 IC HRESULT EndQuery( ID3DQuery *pQuery);
 
 //	Implementation
-
-#ifdef USE_DX11
 IC HRESULT CreateQuery ( ID3DQuery **ppQuery, D3DQUERYTYPE Type)
 {
 	D3D_QUERY_DESC	desc;
@@ -44,26 +42,3 @@ IC HRESULT EndQuery( ID3DQuery *pQuery)
 	return S_OK;
 }
 
-#else
-
-IC HRESULT CreateQuery ( ID3DQuery **ppQuery, D3DQUERYTYPE Type)
-{
-	return HW.pDevice->CreateQuery(Type, ppQuery);
-}
-
-IC HRESULT GetData( ID3DQuery *pQuery, void *pData, UINT DataSize )
-{
-	return pQuery->GetData( pData, DataSize, D3DGETDATA_FLUSH);
-}
-
-IC HRESULT BeginQuery( ID3DQuery *pQuery)
-{
-	return pQuery->Issue( D3DISSUE_BEGIN);
-}
-
-IC HRESULT EndQuery( ID3DQuery *pQuery)
-{
-	return pQuery->Issue( D3DISSUE_END);
-}
-
-#endif

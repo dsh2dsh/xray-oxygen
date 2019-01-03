@@ -572,11 +572,7 @@ static HRESULT create_shader(LPCSTR name, const char* const pTarget, DWORD const
 	HRESULT		_result = E_FAIL;
 	if (pTarget[0] == 'p') {
 		SPS* sps_result = (SPS*)result;
-#ifdef USE_DX11
 		_result			= HW.pDevice->CreatePixelShader(buffer, buffer_size, nullptr, &sps_result->ps);
-#else // #ifdef USE_DX11
-		_result			= HW.pDevice->CreatePixelShader(buffer, buffer_size, &sps_result->ps);
-#endif // #ifdef USE_DX11
 		if ( !SUCCEEDED(_result) ) {
 			Log			("! PS: ", file_name);
 			Msg			("! CreatePixelShader hr == 0x%08x", _result);
@@ -590,11 +586,7 @@ static HRESULT create_shader(LPCSTR name, const char* const pTarget, DWORD const
 
 		ID3DShaderReflection *pReflection = nullptr;
 
-#ifdef USE_DX11
 		_result			= D3DReflect( buffer, buffer_size, IID_ID3DShaderReflection, (void**)&pReflection);
-#else
-		_result			= D3D10ReflectShader( buffer, buffer_size, &pReflection);
-#endif
 
 		//	Parse constant, texture, sampler binding
 		//	Store input signature blob
@@ -613,11 +605,9 @@ static HRESULT create_shader(LPCSTR name, const char* const pTarget, DWORD const
 	}
 	else if (pTarget[0] == 'v') {
 		SVS* svs_result = (SVS*)result;
-#ifdef USE_DX11
+
 		_result			= HW.pDevice->CreateVertexShader(buffer, buffer_size, nullptr, &svs_result->vs);
-#else // #ifdef USE_DX11
-		_result			= HW.pDevice->CreateVertexShader(buffer, buffer_size, &svs_result->vs);
-#endif // #ifdef USE_DX11
+
 		if ( !SUCCEEDED(_result) ) {
 			Log			("! VS: ", file_name);
 			Msg			("! CreatePixelShader hr == 0x%08x", _result);
@@ -630,11 +620,9 @@ static HRESULT create_shader(LPCSTR name, const char* const pTarget, DWORD const
         SetDebugObjectName(svs_result->vs, VsDebugName);
 
 		ID3DShaderReflection *pReflection = nullptr;
-#ifdef USE_DX11
+
 		_result			= D3DReflect( buffer, buffer_size, IID_ID3DShaderReflection, (void**)&pReflection);
-#else
-		_result			= D3D10ReflectShader( buffer, buffer_size, &pReflection);
-#endif
+
 		
 		//	Parse constant, texture, sampler binding
 		//	Store input signature blob
@@ -664,11 +652,8 @@ static HRESULT create_shader(LPCSTR name, const char* const pTarget, DWORD const
 	}
 	else if (pTarget[0] == 'g') {
 		SGS* sgs_result = (SGS*)result;
-#ifdef USE_DX11
+
 		_result			= HW.pDevice->CreateGeometryShader(buffer, buffer_size, nullptr, &sgs_result->gs);
-#else
-		_result			= HW.pDevice->CreateGeometryShader(buffer, buffer_size, &sgs_result->gs);
-#endif
 
 		if ( !SUCCEEDED(_result) ) {
 			Log			("! GS: ", file_name);
@@ -683,11 +668,8 @@ static HRESULT create_shader(LPCSTR name, const char* const pTarget, DWORD const
 
 		ID3DShaderReflection *pReflection = nullptr;
 
-#ifdef USE_DX11
 		_result			= D3DReflect( buffer, buffer_size, IID_ID3DShaderReflection, (void**)&pReflection);
-#else
-		_result			= D3D10ReflectShader( buffer, buffer_size, &pReflection);
-#endif
+
 
 		//	Parse constant, texture, sampler binding
 		//	Store input signature blob

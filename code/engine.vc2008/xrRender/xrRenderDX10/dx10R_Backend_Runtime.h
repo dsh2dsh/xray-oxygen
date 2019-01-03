@@ -58,11 +58,8 @@ ICF void CBackend::set_PS(ID3DPixelShader* _ps, LPCSTR _n)
 		PGO				(Msg("PGO:Pshader:%x",_ps));
 		stat.ps			++;
 		ps				= _ps;
-#ifdef USE_DX11
+
 		HW.pContext->PSSetShader(ps, 0, 0);
-#else
-		HW.pContext->PSSetShader(ps);
-#endif
 
 		ps_name			= _n;
 	}
@@ -74,11 +71,8 @@ ICF void CBackend::set_GS(ID3DGeometryShader* _gs, LPCSTR _n)
 	{
 		PGO				(Msg("PGO:Gshader:%x",_ps));
 		gs				= _gs;
-#ifdef USE_DX11
+
 		HW.pContext->GSSetShader(gs, 0, 0);
-#else
-		HW.pContext->GSSetShader(gs);
-#endif
 
 #ifdef DEBUG
 		gs_name			= _n;
@@ -86,7 +80,6 @@ ICF void CBackend::set_GS(ID3DGeometryShader* _gs, LPCSTR _n)
 	}
 }
 
-#	ifdef USE_DX11
 ICF void CBackend::set_HS(ID3D11HullShader* _hs, LPCSTR _n)
 {
 	if (hs!=_hs)
@@ -136,8 +129,6 @@ ICF	bool CBackend::is_TessEnabled()
 	return HW.FeatureLevel>=D3D_FEATURE_LEVEL_11_0 && (ds!=0 || hs!=0);
 }
 
-#	endif
-
 
 ICF void CBackend::set_VS(ID3DVertexShader* _vs, LPCSTR _n)
 {
@@ -146,11 +137,8 @@ ICF void CBackend::set_VS(ID3DVertexShader* _vs, LPCSTR _n)
 		PGO				(Msg("PGO:Vshader:%x",_vs));
 		stat.vs			++;
 		vs				= _vs;
-#ifdef USE_DX11
+
 		HW.pContext->VSSetShader(vs, 0, 0);
-#else
-		HW.pContext->VSSetShader(vs);
-#endif
 
 #ifdef DEBUG
 		vs_name			= _n;
@@ -240,7 +228,6 @@ IC void CBackend::ApplyPrimitieTopology( D3D_PRIMITIVE_TOPOLOGY Topology )
 	}
 }
 
-#ifdef USE_DX11
 IC void CBackend::Compute(UINT ThreadGroupCountX, UINT ThreadGroupCountY, UINT ThreadGroupCountZ)
 {
 	stat.calls++;
@@ -251,16 +238,12 @@ IC void CBackend::Compute(UINT ThreadGroupCountX, UINT ThreadGroupCountY, UINT T
 	constants.flush();
 	HW.pContext->Dispatch(ThreadGroupCountX,ThreadGroupCountY,ThreadGroupCountZ);
 }
-#endif
+
 
 
 ICF void CBackend::ResolveSubresource(ID3DResource *pDstResource, UINT DstSubresource, ID3DResource *pSrcResource, UINT SrcSubresource, DXGI_FORMAT Format)
 {
-#ifdef USE_DX11
 	HW.pContext->ResolveSubresource	(pDstResource, DstSubresource, pSrcResource, SrcSubresource, Format);
-#else
-	HW.pDevice->ResolveSubresource	(pDstResource, DstSubresource, pSrcResource, SrcSubresource, Format);
-#endif
 }
 
 ICF void CBackend::Clear(u32 Count, const D3DRECT* pRects, u32 Flags, u32 Color, float Z, u32 Stencil)
@@ -298,13 +281,11 @@ IC void CBackend::Render(D3DPRIMITIVETYPE PrimitiveType, u32 baseV, u32 startV, 
 	u32	iIndexCount = GetIndexCount(PrimitiveType, PC);
 
 	//!!! HACK !!!
-#ifdef USE_DX11
 	if (hs != 0 || ds != 0)
 	{
 		R_ASSERT(Topology == D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		Topology = D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST;
 	}
-#endif
 
 	stat.calls++;
 	stat.verts += countV;
@@ -474,9 +455,7 @@ IC void CBackend::set_Constants			(R_constant_table* pConstantTable)
 	xforms.unmap	();
 	hemi.unmap		();
 	tree.unmap		();
-#ifdef USE_DX11
 	LOD.unmap		();
-#endif
 	StateManager.UnmapConstants();
 	if (pConstantTable == nullptr)		return;
 
@@ -488,33 +467,25 @@ IC void CBackend::set_Constants			(R_constant_table* pConstantTable)
 		ref_cbuffer	aPixelConstants[MaxCBuffers];
 		ref_cbuffer	aVertexConstants[MaxCBuffers];
 		ref_cbuffer	aGeometryConstants[MaxCBuffers];
-#ifdef USE_DX11
 		ref_cbuffer	aHullConstants[MaxCBuffers];
 		ref_cbuffer	aDomainConstants[MaxCBuffers];
 		ref_cbuffer	aComputeConstants[MaxCBuffers];
-#endif
 
 		for (int i=0; i<MaxCBuffers; ++i)
 		{
 			aPixelConstants[i] = m_aPixelConstants[i];
 			aVertexConstants[i] = m_aVertexConstants[i];
 			aGeometryConstants[i] = m_aGeometryConstants[i];
-
-#ifdef USE_DX11
 			aHullConstants[i] = m_aHullConstants[i];
 			aDomainConstants[i] = m_aDomainConstants[i];
 			aComputeConstants[i] = m_aComputeConstants[i];
-#endif
 
 			m_aPixelConstants[i] = 0;
 			m_aVertexConstants[i] = 0;
 			m_aGeometryConstants[i] = 0;
-
-#ifdef USE_DX11
 			m_aHullConstants[i] = 0;
 			m_aDomainConstants[i] = 0;
 			m_aComputeConstants[i] = 0;
-#endif
 		}
 		R_constant_table::cb_table::iterator	it	= pConstantTable->m_CBTable.begin();
 		R_constant_table::cb_table::iterator	end	= pConstantTable->m_CBTable.end	();
@@ -537,7 +508,6 @@ IC void CBackend::set_Constants			(R_constant_table* pConstantTable)
 				VERIFY((uiBufferIndex&CB_BufferIndexMask)<MaxCBuffers);
 				m_aGeometryConstants[uiBufferIndex&CB_BufferIndexMask] = it->second;
 			}
-#ifdef USE_DX11
 			else if ( (uiBufferIndex&CB_BufferTypeMask) == CB_BufferHullShader)
 			{
 				VERIFY((uiBufferIndex&CB_BufferIndexMask)<MaxCBuffers);
@@ -553,7 +523,6 @@ IC void CBackend::set_Constants			(R_constant_table* pConstantTable)
 				VERIFY((uiBufferIndex&CB_BufferIndexMask)<MaxCBuffers);
 				m_aComputeConstants[uiBufferIndex&CB_BufferIndexMask] = it->second;
 			}
-#endif
 			else
 				VERIFY("Invalid enumeration");
 		}
@@ -607,8 +576,6 @@ IC void CBackend::set_Constants			(R_constant_table* pConstantTable)
 			}
 			HW.pContext->GSSetConstantBuffers(uiMin, uiMax-uiMin, &tempBuffer[uiMin]);
 		}
-
-#ifdef USE_DX11
 		if (CBuffersNeedUpdate(m_aHullConstants, aHullConstants, uiMin, uiMax))
 		{
 			++uiMax;
@@ -650,7 +617,6 @@ IC void CBackend::set_Constants			(R_constant_table* pConstantTable)
 			}
 			HW.pContext->CSSetConstantBuffers(uiMin, uiMax-uiMin, &tempBuffer[uiMin]);
 		}
-#endif
 	}
 
 	// process constant-loaders

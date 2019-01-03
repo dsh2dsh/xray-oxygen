@@ -319,10 +319,8 @@ void CRender::Render()
 	LP_normal.clear();
 	LP_pending.clear();
 
-#ifdef USE_DX11
 	if (RImplementation.o.dx10_msaa)
 		RCache.set_ZB(RImplementation.Target->rt_MSAADepth->pZRT);
-#endif
 
 	{
 		PIX_EVENT(DEFER_TEST_LIGHT_VIS);
@@ -409,7 +407,7 @@ void CRender::Render()
 		Lights_LastFrame.clear();
 	}
 
-#ifdef USE_DX11
+
     // full screen pass to mark msaa-edge pixels in highest stencil bit
     if (RImplementation.o.dx10_msaa)
     {
@@ -422,7 +420,7 @@ void CRender::Render()
         PIX_EVENT(DEFER_RAIN);
         render_rain();
     }
-#endif
+
 
 	// Directional light - sun
 	if (bSUN)	
@@ -449,14 +447,10 @@ void CRender::Render()
 		RCache.set_xform_view(Device.mView);
 
 		// Stencil - write 0x1 at pixel pos
-#ifdef USE_DX11
 		if (!RImplementation.o.dx10_msaa)
 			RCache.set_Stencil(TRUE, D3DCMP_ALWAYS, 0x01, 0xff, 0xff, D3DSTENCILOP_KEEP, D3DSTENCILOP_REPLACE, D3DSTENCILOP_KEEP);
 		else
 			RCache.set_Stencil(TRUE, D3DCMP_ALWAYS, 0x01, 0xff, 0x7f, D3DSTENCILOP_KEEP, D3DSTENCILOP_REPLACE, D3DSTENCILOP_KEEP);
-#else
-		RCache.set_Stencil(TRUE, D3DCMP_ALWAYS, 0x01, 0xff, 0xff, D3DSTENCILOP_KEEP, D3DSTENCILOP_REPLACE, D3DSTENCILOP_KEEP);
-#endif
 
 		RCache.set_CullMode(CULL_CCW);
 		RCache.set_ColorWriteEnable();
@@ -528,15 +522,11 @@ void CRender::AfterWorldRender()
 	if (Device.m_SecondViewport.IsSVPFrame())
 	{
 		// Copy back buffer to second viewport RT
-#ifdef USE_DX11 
+
 		ID3DTexture2D* pBackBuffer = nullptr;
 		HW.m_pSwapChain->GetBuffer(0, __uuidof(ID3DTexture2D), (LPVOID*)&pBackBuffer);
 		HW.pContext->CopyResource(Target->rt_secondVP->pSurface, pBackBuffer);
-#else
-		IDirect3DSurface9* pBackBuffer = nullptr;
-		HW.pDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pBackBuffer);
-		D3DXLoadSurfaceFromSurface(Target->rt_secondVP->pRT, nullptr, nullptr, pBackBuffer, nullptr, nullptr, D3DX_DEFAULT, 0);
-#endif
+
 		pBackBuffer->Release();
 	}
 }

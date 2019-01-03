@@ -11,10 +11,8 @@
 #endif
 
 class  CHW
-#ifdef USE_DX11
 	:	public pureAppActivate, 
 		public pureAppDeactivate
-#endif
 {
 //	Functions section
 public:
@@ -40,19 +38,10 @@ public:
 	void					FillVidModeList			();
 	void					FreeVidModeList			();
 
-#ifdef DEBUG
-#ifdef USE_DX11
-	void	Validate(void)	{};
-#else
-	void	Validate(void)	{	VERIFY(pDevice); VERIFY(pD3D); };
-#endif
-#else
-	void	Validate(void)	{};
-#endif
+	void	                Validate(void)	{};
 
 //	Variables section
 public:
-#ifdef USE_DX11
 	IDXGIAdapter1*			m_pAdapter;	//	pD3D equivalent
 	ID3D11Device*			pDevice;	//	combine with DX9 pDevice via typedef
 	ID3D11DeviceContext*    pContext;	//	combine with DX9 pDevice via typedef
@@ -67,31 +56,16 @@ public:
 	bool					m_bUsePerfhud;
 	D3D_FEATURE_LEVEL		FeatureLevel;
 	bool					IsFormatSupported		(DXGI_FORMAT fmt);
-#else
-	IDirect3D9* 			pD3D;		// D3D
-	IDirect3DDevice9*		pDevice;	// render device
-
-	IDirect3DSurface9*		pBaseRT;
-	IDirect3DSurface9*		pBaseZB;
-
-	CHWCaps					Caps;
-
-	UINT					DevAdapter;
-	D3DDEVTYPE				DevT;
-	D3DPRESENT_PARAMETERS	DevPP;
-	bool					IsFormatSupported		(D3DFORMAT fmt, DWORD type, DWORD usage);
-#endif
 
 #ifndef _MAYA_EXPORT
 	stats_manager			stats_manager;
 #endif
-#ifdef USE_DX11
+
 	void			UpdateViews();
 	DXGI_RATIONAL	SelectRefresh(u32 dwWidth, u32 dwHeight, DXGI_FORMAT fmt);
 
 	virtual	void	OnAppActivate();
 	virtual void	OnAppDeactivate();
-#endif
 
 private:
 	bool					m_move_window;

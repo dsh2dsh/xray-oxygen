@@ -81,12 +81,7 @@ void	CResourceManager::reset_end				()
 
 	// create state-blocks
 	{
-		for (u32 _it=0; _it<v_states.size(); _it++)
-#ifdef USE_DX11
-			v_states[_it]->state = ID3DState::Create(v_states[_it]->state_code);
-#else
-			v_states[_it]->state = v_states[_it]->state_code.record();
-#endif
+		for (u32 _it=0; _it<v_states.size(); _it++) v_states[_it]->state = ID3DState::Create(v_states[_it]->state_code);
 	}
 
 	// create everything, renderer may use

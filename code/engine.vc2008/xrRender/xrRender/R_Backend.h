@@ -14,9 +14,8 @@
 #include "r_backend_hemi.h"
 #include "r_backend_tree.h"
 
-#ifdef USE_DX11
-#	include "..\xrRenderPC_R4\r_backend_lod.h"
-#endif
+#include "..\xrRenderPC_R4\r_backend_lod.h"
+
 
 #include "fvf.h"
 
@@ -49,7 +48,6 @@ struct	R_statistics			{
 class  ECORE_API CBackend
 {
 public:
-#ifdef USE_DX11
 	enum	MaxTextures
 	{
 		//	Actually these values are 128
@@ -64,14 +62,6 @@ public:
 	{
 		MaxCBuffers	= 14
 	};
-#else
-	enum	MaxTextures
-	{
-		mtMaxPixelShaderTextures = 16,
-		mtMaxVertexShaderTextures = 4,
-	};
-#endif
-
 public:            
 	// Dynamic geometry streams
 	_VertexStream					Vertex;
@@ -82,11 +72,7 @@ public:
 	R_xforms						xforms;
 	R_hemi							hemi;
 	R_tree							tree;
-#ifdef USE_DX11
 	R_LOD							LOD;
-#endif
-
-#ifdef USE_DX11
 	ref_cbuffer						m_aVertexConstants[MaxCBuffers];
 	ref_cbuffer						m_aPixelConstants[MaxCBuffers];
 	ref_cbuffer						m_aGeometryConstants[MaxCBuffers];
@@ -98,21 +84,15 @@ public:
 	DWORD							dummy0;	//	Padding to avoid warning	
 	DWORD							dummy1;	//	Padding to avoid warning	
 	DWORD							dummy2;	//	Padding to avoid warning	
-#endif
-
 private:
 	// Render-targets
 	ID3DRenderTargetView*			pRT[4];
 	ID3DDepthStencilView*			pZB;
 
 	// Vertices/Indices/etc
-#ifdef USE_DX11
 	SDeclaration*					decl;
-#else
-	IDirect3DVertexDeclaration9*	decl;
-#endif
-	ID3DVertexBuffer*			vb;
-	ID3DIndexBuffer*			ib;
+	ID3DVertexBuffer*			    vb;
+	ID3DIndexBuffer*			    ib;
 	u32								vb_stride;
 
 	// Pixel/Vertex constants
@@ -123,21 +103,16 @@ private:
 	ID3DState*						state;
 	ID3DPixelShader*				ps;
 	ID3DVertexShader*				vs;
-#ifdef USE_DX11
 	ID3DGeometryShader*				gs;
 	ID3D11HullShader*				hs;
 	ID3D11DomainShader*				ds;
 	ID3D11ComputeShader*			cs;
-#endif
-
 	LPCSTR							ps_name;
 	LPCSTR							vs_name;
-#ifdef USE_DX11
 	LPCSTR							gs_name;
 	LPCSTR							hs_name;
 	LPCSTR							ds_name;
 	LPCSTR							cs_name;
-#endif
 	u32								stencil_enable;
 	u32								stencil_func;
 	u32								stencil_ref;
@@ -158,14 +133,12 @@ private:
 	SConstantList*					C;
 
 	// Lists-expanded
-	CTexture*						textures_ps	[mtMaxPixelShaderTextures];	// stages
+	CTexture*						textures_ps	[mtMaxPixelShaderTextures];	    // stages
 	CTexture*						textures_vs	[mtMaxVertexShaderTextures];	// 4 vs
-#ifdef USE_DX11
 	CTexture*						textures_gs	[mtMaxGeometryShaderTextures];	// 4 vs
-	CTexture*						textures_hs	[mtMaxHullShaderTextures];	// 4 vs
+	CTexture*						textures_hs	[mtMaxHullShaderTextures];	    // 4 vs
 	CTexture*						textures_ds	[mtMaxDomainShaderTextures];	// 4 vs
 	CTexture*						textures_cs	[mtMaxComputeShaderTextures];	// 4 vs
-#endif
 
 #ifdef _EDITOR
 	CMatrix*						matrices	[8	];	// matrices are supported only for FFP
@@ -198,28 +171,18 @@ public:
 	{
 		if (stage<CTexture::rstVertex)			return textures_ps[stage];
 		else if (stage<CTexture::rstGeometry)	return textures_vs[stage-CTexture::rstVertex];
-#ifdef USE_DX11
-		else if (stage<CTexture::rstHull)	return textures_gs[stage-CTexture::rstGeometry];
-		else if (stage<CTexture::rstDomain) return textures_hs[stage-CTexture::rstHull];
-		else if (stage<CTexture::rstCompute) return textures_ds[stage-CTexture::rstDomain];
-		else if (stage<CTexture::rstInvalid) return textures_cs[stage-CTexture::rstCompute];
+		else if (stage<CTexture::rstHull)	    return textures_gs[stage-CTexture::rstGeometry];
+		else if (stage<CTexture::rstDomain)     return textures_hs[stage-CTexture::rstHull];
+		else if (stage<CTexture::rstCompute)    return textures_ds[stage-CTexture::rstDomain];
+		else if (stage<CTexture::rstInvalid)    return textures_cs[stage-CTexture::rstCompute];
 		else
 		{
 			VERIFY(!"Invalid texture stage");
 			return 0;
 		}
-#else
-		VERIFY(!"Invalid texture stage");
-		return 0;
-#endif
 	}
 
-#ifdef USE_DX11
 	IC	void						get_ConstantDirect	(shared_str& n, u32 DataSize, void** pVData, void** pGData, void** pPData);
-#else
-	IC	R_constant_array&			get_ConstantCache_Vertex	()			{ return constants.a_vertex;	}
-	IC	R_constant_array&			get_ConstantCache_Pixel		()			{ return constants.a_pixel;		}
-#endif
 
 	// API
 	IC	void						set_xform			(u32 ID, const Fmatrix& M_);
@@ -257,16 +220,10 @@ public:
 	ICF	void						set_States			(ID3DState* _state);
 	ICF	void						set_States			(ref_state& _state)					{ set_States(_state->state);	}
 
-#ifdef USE_DX11
-	ICF  void						set_Format			(SDeclaration* _decl);
-#else
-	ICF  void						set_Format			(IDirect3DVertexDeclaration9* _decl);
-#endif
-
+	ICF void						set_Format			(SDeclaration* _decl);
 	ICF void						set_PS				(ID3DPixelShader* _ps, LPCSTR _n=0);
 	ICF void						set_PS				(ref_ps& _ps)						{ set_PS(_ps->ps,_ps->cName.c_str());				}
 
-#ifdef USE_DX11
 	ICF void						set_GS				(ID3DGeometryShader* _gs, LPCSTR _n=0);
 	ICF void						set_GS				(ref_gs& _gs)						{ set_GS(_gs->gs,_gs->cName.c_str());				}
 
@@ -278,24 +235,15 @@ public:
 
 	ICF void						set_CS				(ID3D11ComputeShader* _cs, LPCSTR _n=0);
 	ICF void						set_CS				(ref_cs& _cs)						{ set_CS(_cs->sh,_cs->cName.c_str());				}
-#endif
 
-#ifdef USE_DX11
 	ICF	bool						is_TessEnabled		();
-#else
-	ICF	bool						is_TessEnabled		() {return false;}
-#endif
 
 	ICF void						set_VS				(ref_vs& _vs);
-#ifdef USE_DX11
+
 	ICF void						set_VS				(SVS* _vs);
 protected:	//	In DX11 we need input shader signature which is stored in ref_vs
-#endif
 	ICF void						set_VS				(ID3DVertexShader* _vs, LPCSTR _n=0);
-#ifdef USE_DX11
 public:
-#endif
-
 	ICF	void						set_Vertices		(ID3DVertexBuffer* _vb, u32 _vb_stride);
 	ICF	void						set_Indices			(ID3DIndexBuffer* _ib);
 	ICF void						set_Geometry		(SGeometry* _geom);
@@ -322,11 +270,8 @@ public:
 	ICF	void						set_ca				(R_constant* pC, u32 e, const Fmatrix& A)							{ if (pC)		constants.seta(pC,e,A);				}
 	ICF	void						set_ca				(R_constant* pC, u32 e, const Fvector4& A)							{ if (pC)		constants.seta(pC,e,A);				}
 	ICF	void						set_ca				(R_constant* pC, u32 e, float x, float y, float z, float w)			{ if (pC)		constants.seta(pC,e,x,y,z,w);		}
-#ifdef USE_DX11
 	ICF	void						set_c				(R_constant* pC, float A)											{ if (pC)		constants.set(pC,A);				}
 	ICF	void						set_c				(R_constant* pC, int A)												{ if (pC)		constants.set(pC,A);				}
-#endif
-
 
 	// constants - LPCSTR (slow)
 	ICF	void						set_c				(LPCSTR n, const Fmatrix& A)										{ if(ctable)	set_c	(&*ctable->get(n),A);		}
@@ -336,10 +281,8 @@ public:
 	ICF	void						set_ca				(LPCSTR n, u32 e, const Fmatrix& A)									{ if(ctable)	set_ca	(&*ctable->get(n),e,A);		}
 	ICF	void						set_ca				(LPCSTR n, u32 e, const Fvector4& A)								{ if(ctable)	set_ca	(&*ctable->get(n),e,A);		}
 	ICF	void						set_ca				(LPCSTR n, u32 e, float x, float y, float z, float w)				{ if(ctable)	set_ca	(&*ctable->get(n),e,x,y,z,w);}
-#ifdef USE_DX11
 	ICF	void						set_c				(LPCSTR n, float A)											{ if(ctable)	set_c	(&*ctable->get(n),A);		}
 	ICF	void						set_c				(LPCSTR n, int A)												{ if(ctable)	set_c	(&*ctable->get(n),A);		}
-#endif
 
 	// constants - shared_str (average)
 	ICF	void						set_c				(shared_str& n, const Fmatrix& A)									{ if(ctable)	set_c	(&*ctable->get(n),A);			}
@@ -348,22 +291,16 @@ public:
 	ICF	void						set_ca				(shared_str& n, u32 e, const Fmatrix& A)							{ if(ctable)	set_ca	(&*ctable->get(n),e,A);		}
 	ICF	void						set_ca				(shared_str& n, u32 e, const Fvector4& A)							{ if(ctable)	set_ca	(&*ctable->get(n),e,A);		}
 	ICF	void						set_ca				(shared_str& n, u32 e, float x, float y, float z, float w)			{ if(ctable)	set_ca	(&*ctable->get(n),e,x,y,z,w);}
-#ifdef USE_DX11
 	ICF	void						set_c				(shared_str& n, float A)											{ if(ctable)	set_c	(&*ctable->get(n),A);		}
 	ICF	void						set_c				(shared_str& n, int A)												{ if(ctable)	set_c	(&*ctable->get(n),A);		}
-#endif
 
-#ifdef USE_DX11
 	ICF void						ResolveSubresource	(ID3DResource *pDstResource, UINT DstSubresource, ID3DResource *pSrcResource, UINT SrcSubresource, DXGI_FORMAT Format);
-#endif
 
 	ICF void						Clear				(u32 Count, const D3DRECT* pRects, u32 Flags, u32 Color, float Z, u32 Stencil);
 	ICF	void						Render				(D3DPRIMITIVETYPE T, u32 baseV, u32 startV, u32 countV, u32 startI, u32 PC);
 	ICF	void						Render				(D3DPRIMITIVETYPE T, u32 startV, u32 PC);
 
-#ifdef USE_DX11
 	ICF	void						Compute				(UINT ThreadGroupCountX, UINT ThreadGroupCountY, UINT ThreadGroupCountZ);
-#endif
 
 	// Device create / destroy / frame signaling
 	void							RestoreQuadIBData	();	// Igor: is used to test bug with rain, particles corruption
@@ -376,18 +313,10 @@ public:
 	// Debug render
 	void dbg_DP						(D3DPRIMITIVETYPE pt, ref_geom geom, u32 vBase, u32 pc);
 	void dbg_DIP					(D3DPRIMITIVETYPE pt, ref_geom geom, u32 baseV, u32 startV, u32 countV, u32 startI, u32 PC);
-#ifdef USE_DX11
+
 	//	TODO: DX10: Implement this.
-	IC void	dbg_SetRS				(D3DRENDERSTATETYPE p1, u32 p2)
-	{ VERIFY(!"Not implemented"); }
-	IC void	dbg_SetSS				(u32 sampler, D3DSAMPLERSTATETYPE type, u32 value)
-	{ VERIFY(!"Not implemented"); }
-#else
-	IC void	dbg_SetRS				(D3DRENDERSTATETYPE p1, u32 p2)
-	{ CHK_DX(HW.pDevice->SetRenderState(p1,p2)); }
-	IC void	dbg_SetSS				(u32 sampler, D3DSAMPLERSTATETYPE type, u32 value)
-	{ CHK_DX(HW.pDevice->SetSamplerState(sampler,type,value)); }
-#endif
+	IC void	dbg_SetRS				(D3DRENDERSTATETYPE p1, u32 p2) { VERIFY(!"Not implemented"); }
+	IC void	dbg_SetSS				(u32 sampler, D3DSAMPLERSTATETYPE type, u32 value) { VERIFY(!"Not implemented"); }
 	void dbg_Draw					(D3DPRIMITIVETYPE T, FVF::L* pVerts, int vcnt, u16* pIdx, int pcnt);
 	void dbg_Draw					(D3DPRIMITIVETYPE T, FVF::L* pVerts, int pcnt);
 	IC void dbg_DrawAABB			(Fvector& fT, float sx, float sy, float sz, u32 uC)						{	Fvector half_dim;	half_dim.set(sx,sy,sz); Fmatrix	TM;	TM.translate(fT); dbg_DrawOBB(TM,half_dim,uC);	}
@@ -399,7 +328,6 @@ public:
 
 	CBackend()						{	Invalidate(); };
 
-#ifdef USE_DX11
 private:
 	//	DirectX 10 internal functionality
 	//void CreateConstantBuffers();
@@ -413,7 +341,6 @@ private:
 	ID3DBlob*				m_pInputSignature;
 
 	bool					m_bChangedRTorZB;
-#endif
 };
 #pragma warning(pop)
 

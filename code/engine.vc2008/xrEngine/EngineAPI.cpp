@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
 #include "EngineAPI.h"
 #include "../xrcdb/xrXRC.h"
 #include "XR_IOConsole.h"
@@ -7,8 +7,8 @@
 
 extern XRCORE_API xr_vector<xr_token> vid_quality_token;
 
-constexpr const char* r2_name = "xrRender_R2";
 constexpr const char* r4_name = "xrRender_R4";
+constexpr const char* r4ext_name = "xrRender_R4_extended";
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -41,43 +41,39 @@ void CEngineAPI::InitializeRenderer()
 {
 	g_bRendererForced = true;
 
-	// If we failed to load render,
-	// then try to fallback to lower one.
-	/// FX to Xottab-DUTU: Не трогай!
-	if (strstr(Core.Params, "-r4"))
+    if (strstr(Core.Params, "-r4ext"))
+        Console->Execute("renderer renderer_r4_extended");
+    else if (strstr(Core.Params, "-r4"))
 		Console->Execute("renderer renderer_r4");
-	else if (strstr(Core.Params, "-r2.5"))
-		Console->Execute("renderer renderer_r2.5");
-	else if (strstr(Core.Params, "-r2a"))
-		Console->Execute("renderer renderer_r2a");
-	else if (strstr(Core.Params, "-r2"))
-		Console->Execute("renderer renderer_r2");
-	else
-	{
+	else {
 		CCC_LoadCFG_custom pTmp("renderer ");
 		pTmp.Execute(Console->ConfigFile);
 		g_bRendererForced = false;
 	}
+    
+    if (psDeviceFlags.test(rsR4ext))
+    {
+        // try to initialize R4
+        Log("Loading DLL:", r4ext_name);
+        hRender = LoadLibrary(r4ext_name);
+        if (!hRender)
+        {
+            // try to load R4
+            Msg("! ...Failed - incompatible hardware/pre-Vista OS.");
+            psDeviceFlags.set(rsR4, true);
+        }
+    }
 
 	if (psDeviceFlags.test(rsR4))
 	{
-		// try to initialize R4
+		// try to initialize R4 extended
 		Log("Loading DLL:", r4_name);
 		hRender = LoadLibrary(r4_name);
 		if (!hRender)
 		{
 			// try to load R4
-			Msg("! ...Failed - incompatible hardware/pre-Vista OS.");
-			psDeviceFlags.set(rsR2, true);
+            R_ASSERT2(hRender, "!...Failed - incompatible hardware/pre-Vista OS.");
 		}
-	}
-
-	if (psDeviceFlags.test(rsR2))
-	{
-		// try to initialize R2
-		Log("Loading DLL:", r2_name);
-		hRender = LoadLibrary(r2_name);
-		R_ASSERT2(hRender, "! ...Failed - incompatible hardware.");
 	}
 }
 

@@ -154,23 +154,15 @@ void R_dsgraph_structure::r_dsgraph_insert_dynamic	(dxRender_Visual *pVisual, Fv
 		SPass &pass = *sh->passes[iPass];
 		auto &map = mapMatrixPasses[sh->flags.iPriority / 2][iPass];
 
-#if defined(USE_DX11)
 		auto &Nvs = map[&*pass.vs];
 		auto &Ngs = Nvs[pass.gs->gs];
 		auto &Nps = Ngs[pass.ps->ps];
-#else
-		auto &Nvs = map[pass.vs->vs];
-		auto &Nps = Nvs[pass.ps->ps];
-#endif
 
-#ifdef USE_DX11
 		Nps.hs = pass.hs->sh;
 		Nps.ds = pass.ds->sh;
 
 		auto &Ncs = Nps.mapCS[pass.constants._get()];
-#else
-		R_dsgraph::mapMatrixStates &Ncs = Nps[pass.constants._get()];
-#endif
+
 		auto &Nstate = Ncs[&pass.state];
 		auto &Ntex = Nstate[pass.T._get()];
 		Ntex.push_back(item);
@@ -185,27 +177,17 @@ void R_dsgraph_structure::r_dsgraph_insert_dynamic	(dxRender_Visual *pVisual, Fv
 				if (SSA > Ncs.ssa)
 				{
 					Ncs.ssa = SSA;
-#ifdef USE_DX11
 					if (SSA > Nps.mapCS.ssa)
 					{
 						Nps.mapCS.ssa = SSA;
-#else
-					if (SSA > Nps.ssa)
-					{
-						Nps.ssa = SSA;
-#endif
-#ifdef USE_DX11
 						if (SSA > Ngs.ssa)
 						{
 							Ngs.ssa = SSA;
-#endif
 							if (SSA > Nvs.ssa)
 							{
 								Nvs.ssa = SSA;
 							}
-#ifdef USE_DX11
 						}
-#endif
 					}
 				}
 			}
@@ -301,23 +283,15 @@ void R_dsgraph_structure::r_dsgraph_insert_static	(dxRender_Visual *pVisual)
 		SPass& pass	= *sh->passes[iPass];
 		mapNormal_T& map = mapNormalPasses[sh->flags.iPriority/2][iPass];
 
-#ifdef USE_DX11
 		auto &Nvs = map[&*pass.vs];
 		auto &Ngs = Nvs[pass.gs->gs];
 		auto &Nps = Ngs[pass.ps->ps];
-#else
-		auto &Nvs = map[pass.vs->vs];
-		auto &Nps = Nvs[pass.ps->ps];
-#endif
 
-#ifdef USE_DX11
 		Nps.hs = pass.hs->sh;
 		Nps.ds = pass.ds->sh;
 
 		auto &Ncs = Nps.mapCS[pass.constants._get()];
-#else
-		auto &Ncs = Nps[pass.constants._get()];
-#endif
+
 		auto &Nstate = Ncs[&pass.state];
 		auto &Ntex = Nstate[pass.T._get()];
 		Ntex.push_back(item);
@@ -332,27 +306,17 @@ void R_dsgraph_structure::r_dsgraph_insert_static	(dxRender_Visual *pVisual)
 				if (SSA > Ncs.ssa)
 				{
 					Ncs.ssa = SSA;
-#ifdef USE_DX11
 					if (SSA > Nps.mapCS.ssa)
 					{
 						Nps.mapCS.ssa = SSA;
-#else
-					if (SSA > Nps.ssa)
-					{
-						Nps.ssa = SSA;
-#endif
-#ifdef USE_DX11
 						if (SSA > Ngs.ssa)
 						{
 							Ngs.ssa = SSA;
-#endif
 							if (SSA > Nvs.ssa)
 							{
 								Nvs.ssa = SSA;
 							}
-#ifdef USE_DX11
 						}
-#endif
 					}
 				}
 			}

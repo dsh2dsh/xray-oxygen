@@ -28,11 +28,7 @@ private:
 	xr_vector<u32>			fids;		// free id's
 
 public:
-#ifdef USE_DX11
 	typedef	u64		occq_result;
-#else
-	typedef	u32		occq_result;
-#endif
 
 public:
 	R_occlusion		();
