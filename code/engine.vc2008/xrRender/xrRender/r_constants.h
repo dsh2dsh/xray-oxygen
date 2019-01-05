@@ -1,7 +1,11 @@
 #pragma once
 
 #include "../../xrcore/xr_resource.h"
+
+
+#ifdef USE_DX11
 #include "../xrRenderDX10/dx10ConstantBuffer.h"
+#endif
 
 class  ECORE_API	R_constant_setup;
 
@@ -85,10 +89,12 @@ struct ECORE_API	R_constant			:public xr_resource
 
 	R_constant_load			ps;
 	R_constant_load			vs;
+#ifdef USE_DX11
 	R_constant_load			gs;
 	R_constant_load			hs;
 	R_constant_load			ds;
 	R_constant_load			cs;
+#endif
 	R_constant_load			samp;
 	R_constant_setup*		handler;
 
@@ -103,14 +109,18 @@ struct ECORE_API	R_constant			:public xr_resource
 			return vs;
 		case RC_dest_pixel:
 			return ps;
+#ifdef USE_DX11
 		case RC_dest_geometry:
 			return gs;
+#	ifdef USE_DX11
 		case RC_dest_hull:
 			return hs;
 		case RC_dest_domain:
 			return ds;
 		case RC_dest_compute:
 			return cs;
+#	endif
+#endif
 		default:
 			FATAL("invalid enumeration for shader");
 		}
@@ -141,14 +151,18 @@ public:
 	typedef xr_vector<ref_constant>		c_table;
 	c_table					table;
 
+#ifdef USE_DX11
 	typedef std::pair<u32,ref_cbuffer>	cb_table_record;
 	typedef xr_vector<cb_table_record>	cb_table;
 	cb_table							m_CBTable;
+#endif
 private:
 	void					fatal		(LPCSTR s);
 
+#ifdef USE_DX11
 	BOOL					parseConstants(ID3DShaderReflectionConstantBuffer* pTable, u32 destination);
 	BOOL					parseResources(ID3DShaderReflection* pReflection, int ResNum, u32 destination);
+#endif
 
 public:
 	~R_constant_table					();
@@ -167,4 +181,6 @@ private:
 };
 typedef	resptr_core<R_constant_table,resptr_base<R_constant_table> >				ref_ctable;
 
+#ifdef USE_DX11
 #include "../xrRenderDX10/dx10ConstantBuffer_impl.h"
+#endif

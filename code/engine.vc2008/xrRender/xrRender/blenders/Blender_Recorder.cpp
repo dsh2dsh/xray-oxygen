@@ -103,9 +103,12 @@ void	CBlender_Compile::_cpp_Compile	(ShaderElement* _SH)
 
 	}
 
-	bUseSteepParallax = DEV->m_textures_description.UseSteepParallax(base) && BT->canUseSteepParallax();
+	bUseSteepParallax = DEV->m_textures_description.UseSteepParallax(base) 
+		&& BT->canUseSteepParallax();
 
+#ifdef USE_DX11
 	TessMethod = 0;
+#endif
 
 	// Compile
 	BT->Compile		(*this);
@@ -151,7 +154,7 @@ void	CBlender_Compile::PassEnd			()
 	proto.vs		= DEV->_CreateVS			(pass_vs);
 	ctable.merge	(&proto.ps->constants);
 	ctable.merge	(&proto.vs->constants);
-
+#ifdef USE_DX11
 	proto.gs		= DEV->_CreateGS			(pass_gs);
 	ctable.merge	(&proto.gs->constants);
 
@@ -163,7 +166,7 @@ void	CBlender_Compile::PassEnd			()
 
 	proto.cs		= DEV->_CreateCS			(pass_cs);
 	ctable.merge	(&proto.cs->constants);
-
+#endif
 	SetMapping				();
 	proto.constants	= DEV->_CreateConstantTable(ctable);
 	proto.T 		= DEV->_CreateTextureList	(passTextures);
@@ -202,12 +205,14 @@ void	CBlender_Compile::PassSET_ablend_mode	(BOOL bABlend,	u32 abSRC, u32 abDST)
 	RS.SetRS(D3DRS_SRCBLEND,			bABlend?abSRC:D3DBLEND_ONE	);
 	RS.SetRS(D3DRS_DESTBLEND,			bABlend?abDST:D3DBLEND_ZERO	);
 
+#ifdef USE_DX11
 	//	Since in our engine D3DRS_SEPARATEALPHABLENDENABLE state is
 	//	always set to false and in DirectX 10 blend functions for 
 	//	color and alpha are always independent, assign blend options for
 	//	alpha in DX10 identical to color.
 	RS.SetRS(D3DRS_SRCBLENDALPHA,		bABlend?abSRC:D3DBLEND_ONE	);
 	RS.SetRS(D3DRS_DESTBLENDALPHA,		bABlend?abDST:D3DBLEND_ZERO	);
+#endif
 }
 void	CBlender_Compile::PassSET_ablend_aref	(BOOL bATest,	u32 aRef)
 {
@@ -264,6 +269,36 @@ void	CBlender_Compile::StageSET_Alpha	(u32 a1, u32 op, u32 a2)
 {
 	RS.SetAlpha	(Stage(),a1,op,a2);
 }
+
+#ifndef USE_DX11
+void	CBlender_Compile::StageSET_TMC		(LPCSTR T, LPCSTR M, LPCSTR C, int UVW_channel)
+{
+	Stage_Texture		(T);
+	Stage_Matrix		(M,UVW_channel);
+	Stage_Constant		(C);
+}
+
+void	CBlender_Compile::StageTemplate_LMAP0	()
+{
+	StageSET_Address	(D3DTADDRESS_CLAMP);
+	StageSET_Color		(D3DTA_TEXTURE,	  D3DTOP_SELECTARG1,	D3DTA_DIFFUSE);
+	StageSET_Alpha		(D3DTA_TEXTURE,	  D3DTOP_SELECTARG1,	D3DTA_DIFFUSE);
+	StageSET_TMC		("$base1","$null","$null",1);
+}
+
+void	CBlender_Compile::Stage_Texture	(LPCSTR name, u32 ,	u32	 fmin, u32 fmip, u32 fmag)
+{
+	sh_list& lst=	L_textures;
+	int id		=	ParseName(name);
+	LPCSTR N	=	name;
+	if (id>=0)	{
+		if (id>=int(lst.size()))	Debug.fatal(DEBUG_INFO,"Not enought textures for shader. Base texture: '%s'.",*lst[0]);
+		N = *lst [id];
+	}
+	passTextures.push_back	(std::make_pair( Stage(),ref_texture( DEV->_CreateTexture(N))));
+	i_Filter				(Stage(),fmin,fmip,fmag);
+}
+#endif
 
 void	CBlender_Compile::Stage_Matrix		(LPCSTR name, int iChannel)
 {

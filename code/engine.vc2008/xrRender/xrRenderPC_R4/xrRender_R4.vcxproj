@@ -160,7 +160,6 @@
     <ClInclude Include="..\xrRender\xrRenderTarget.h" />
     <ClInclude Include="cl_intersect.h" />
     <ClInclude Include="..\xrRenderDX10\DXCommonTypes.h" />
-    <ClInclude Include="DX11EventWrapper.h" />
     <ClInclude Include="r2_puddles.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="..\xrRender\xrD3DDefs.h" />
@@ -172,6 +171,7 @@
     <ClInclude Include="..\xrRender\r__dsgraph_structure.h" />
     <ClInclude Include="..\xrRender\r__dsgraph_types.h" />
     <ClInclude Include="..\xrRender\r__occlusion.h" />
+    <ClInclude Include="..\xrRender\r__pixel_calculator.h" />
     <ClInclude Include="..\xrRender\r_sun_cascades.h" />
     <ClInclude Include="DetailFormat.h" />
     <ClInclude Include="..\xrRender\DetailManager.h" />
@@ -333,6 +333,7 @@
     <ClInclude Include="..\xrRenderDX10\3DFluid\dx103DFluidManager.h" />
     <ClInclude Include="..\xrRenderDX10\3DFluid\dx103DFluidObstacles.h" />
     <ClInclude Include="..\xrRenderDX10\3DFluid\dx103DFluidRenderer.h" />
+    <ClInclude Include="..\xrRender\Debug\dxPixEventWrapper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\xrRender\dxGlowManager.cpp" />
@@ -350,7 +351,6 @@
     <ClCompile Include="..\xrRender\RenderTargetPhaseVignette.cpp" />
     <ClCompile Include="..\xrRender\ScreenshotManager.cpp" />
     <ClCompile Include="AnselWrapper.cpp" />
-    <ClCompile Include="DX11EventWrapper.cpp" />
     <ClCompile Include="r3_puddles.cpp" />
     <ClCompile Include="r4_rendertarget_phase_puddles.cpp" />
     <ClCompile Include="ScreenshotManagerDX11.cpp" />
@@ -371,6 +371,7 @@
     <ClCompile Include="..\xrRender\r__dsgraph_render.cpp" />
     <ClCompile Include="..\xrRender\r__dsgraph_render_lods.cpp" />
     <ClCompile Include="..\xrRender\r__occlusion.cpp" />
+    <ClCompile Include="..\xrRender\r__pixel_calculator.cpp" />
     <ClCompile Include="..\xrRender\tga.cpp" />
     <ClCompile Include="..\xrRender\DetailManager.cpp" />
     <ClCompile Include="..\xrRender\DetailManager_CACHE.cpp" />

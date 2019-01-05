@@ -216,6 +216,9 @@
     <ClInclude Include="..\xrRender\r__occlusion.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="..\xrRender\r__pixel_calculator.h">
+      <Filter>Core</Filter>
+    </ClInclude>
     <ClInclude Include="..\xrRender\r_sun_cascades.h">
       <Filter>Core</Filter>
     </ClInclude>
@@ -699,6 +702,9 @@
     <ClInclude Include="..\xrRenderDX10\3DFluid\dx103DFluidRenderer.h">
       <Filter>Shading templates\3dFluid</Filter>
     </ClInclude>
+    <ClInclude Include="..\xrRender\Debug\dxPixEventWrapper.h">
+      <Filter>Interfase implementations\Debug</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\utils\common\NvMender2003\convert.h">
       <Filter>Editor</Filter>
     </ClInclude>
@@ -726,9 +732,6 @@
     </ClInclude>
     <ClInclude Include="..\xrRender\RenderLightGI.h">
       <Filter>Lights</Filter>
-    </ClInclude>
-    <ClInclude Include="DX11EventWrapper.h">
-      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -772,6 +775,9 @@
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="..\xrRender\r__occlusion.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\xrRender\r__pixel_calculator.cpp">
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="..\xrRender\tga.cpp">
@@ -1317,9 +1323,6 @@
       <Filter>Lights</Filter>
     </ClCompile>
     <ClCompile Include="..\xrRender\Render.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="DX11EventWrapper.cpp">
       <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>

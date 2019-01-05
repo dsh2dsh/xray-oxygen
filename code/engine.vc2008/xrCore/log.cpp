@@ -96,9 +96,7 @@ static xrCriticalSection mtLogStop;
 XRCORE_API bool mtLogThreadInit = false;
 void mtLogProc(void* ThreadArgs)
 {
-	/*return;
-    */
-    if (mtLogThreadInit) return;
+	if (mtLogThreadInit) return;
 
 	LogMessage.emplace(LogMessage.begin(), "[Msg] Logger thread: starting... Please wait...");
 	mtLogThreadInit = true;
@@ -106,7 +104,7 @@ void mtLogProc(void* ThreadArgs)
 	while (mtLogThreadInit || LogMessage.size())
 	{
 		// Check messages size
-		if(LogMessage.empty()) { Sleep(50); continue; } 
+		if(LogMessage.empty()) continue;
 
 		int i, j;
 		xr_string StringMessage = *LogMessage.begin();
@@ -142,11 +140,7 @@ void mtLogProc(void* ThreadArgs)
 
 void Log(const char* s)
 {
-    /*OutputDebugStringA(s);
-    OutputDebugStringA("\n");
-    return;
-    */
-    mtLogStop.Lock();
+	mtLogStop.Lock();
 	LogMessage.emplace_back(s);
 	mtLogStop.Unlock();
 }

@@ -5,6 +5,10 @@
 #include "stdafx.h"
 #pragma hdrstop
 
+#pragma warning(disable:4995)
+#include <d3dx9.h>
+#pragma warning(default:4995)
+
 #include "ResourceManager.h"
 #include "tss.h"
 #include "blenders\blender.h"
@@ -33,11 +37,13 @@ IBlender* CResourceManager::_GetBlender		(LPCSTR Name)
 	map_Blender::iterator I = m_blenders.find	(N);
 
 //	TODO: DX10: When all shaders are ready switch to common path
+#ifdef USE_DX11
 	if (I==m_blenders.end())	
 	{
 		Msg("DX10: Shader '%s' not found in library.",Name); 
 		return 0;
 	}
+#endif
 	if (I==m_blenders.end())	{ Debug.fatal(DEBUG_INFO,"Shader '%s' not found in library.",Name); return nullptr; }
 	else					return I->second;
 }
@@ -213,9 +219,13 @@ Shader*	CResourceManager::_cpp_Create	(IBlender* B, LPCSTR s_shader, LPCSTR s_te
 
 Shader*	CResourceManager::_cpp_Create	(LPCSTR s_shader, LPCSTR s_textures, LPCSTR s_constants, LPCSTR s_matrices)
 {
-	IBlender	*pBlender = _GetBlender(s_shader?s_shader:"null");
-	if (!pBlender) return NULL;
-	return	_cpp_Create(pBlender ,s_shader,s_textures,s_constants,s_matrices);
+#ifdef USE_DX11
+		IBlender	*pBlender = _GetBlender(s_shader?s_shader:"null");
+		if (!pBlender) return NULL;
+		return	_cpp_Create(pBlender ,s_shader,s_textures,s_constants,s_matrices);
+#else
+		return	_cpp_Create(_GetBlender(s_shader?s_shader:"null"),s_shader,s_textures,s_constants,s_matrices);
+#endif
 }
 
 Shader*		CResourceManager::Create	(IBlender*	B,		LPCSTR s_shader,	LPCSTR s_textures,	LPCSTR s_constants, LPCSTR s_matrices)
@@ -225,6 +235,7 @@ Shader*		CResourceManager::Create	(IBlender*	B,		LPCSTR s_shader,	LPCSTR s_textu
 
 Shader* CResourceManager::Create(LPCSTR s_shader, LPCSTR s_textures, LPCSTR s_constants, LPCSTR s_matrices)
 {
+#ifdef USE_DX11
 	if (_lua_HasShader(s_shader))
 		return _lua_Create(s_shader, s_textures);
 	else
@@ -243,6 +254,12 @@ Shader* CResourceManager::Create(LPCSTR s_shader, LPCSTR s_textures, LPCSTR s_co
 			}
 		}
 	}
+#else
+	if (_lua_HasShader(s_shader))
+		return _lua_Create(s_shader, s_textures);
+
+	return _cpp_Create(s_shader, s_textures, s_constants, s_matrices);
+#endif
 }
 
 void CResourceManager::Delete(const Shader* S)
@@ -289,4 +306,7 @@ void CResourceManager::DeferredUpload()
 void	CResourceManager::Evict()
 {
 	//	TODO: DX10: check if we really need this method
+#ifndef USE_DX11
+	CHK_DX	(HW.pDevice->EvictManagedResources());
+#endif
 }

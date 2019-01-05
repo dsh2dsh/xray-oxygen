@@ -33,7 +33,9 @@ void __fastcall mapNormal_Render	(mapNormalItems& N)
 	for (; I!=E; I++)		{
 		_NormalItem&		Ni	= *I;
 		float LOD = calcLOD(Ni.ssa,Ni.pVisual->vis.sphere.R);
+#ifdef USE_DX11
 		RCache.LOD.set_LOD(LOD);
+#endif
 		Ni.pVisual->Render	(LOD);
 	}
 }
@@ -46,7 +48,11 @@ template <class T> IC bool cmp_second_ssa(const T &lhs, const T &rhs) { return (
 template <class T> IC bool cmp_ssa(const T &lhs, const T &rhs) { return (lhs.ssa > rhs.ssa); }
 template <class T> IC bool cmp_ps_second_ssa(const T &lhs, const T &rhs)
 {
+#ifdef USE_DX11
 	return (lhs->second.mapCS.ssa > rhs->second.mapCS.ssa);
+#else
+	return (lhs->second.ssa > rhs->second.ssa);
+#endif
 }
 template <class T> IC bool cmp_textures_lex2(const T &lhs, const T &rhs)
 {
@@ -125,9 +131,9 @@ void __fastcall mapMatrix_Render	(mapMatrixItems& N)
 		RImplementation.apply_lmaterial	();
 
 		float LOD = calcLOD(Ni.ssa,Ni.pVisual->vis.sphere.R);
-
+#ifdef USE_DX11
 		RCache.LOD.set_LOD(LOD);
-
+#endif
 		Ni.pVisual->Render(LOD);
 	}
 	N.clear	();
@@ -156,15 +162,25 @@ IC	bool	cmp_vs_mat			(mapMatrixVS::value_type& N1, mapMatrixVS::value_type& N2)
 
 IC	bool	cmp_ps_nrm			(mapNormalPS::value_type& N1, mapNormalPS::value_type& N2)
 {
+#ifdef USE_DX11
 	return (N1.second.mapCS.ssa > N2.second.mapCS.ssa);
+#else
+	return (N1.second.ssa > N2.second.ssa);
+#endif
 }
 IC	bool	cmp_ps_mat			(mapMatrixPS::value_type& N1, mapMatrixPS::value_type& N2)
 {
+#ifdef USE_DX11
 	return (N1.second.mapCS.ssa > N2.second.mapCS.ssa);
+#else
+	return (N1.second.ssa > N2.second.ssa);
+#endif
 }
 
+#ifdef USE_DX11
 IC	bool	cmp_gs_nrm			(mapNormalGS::value_type& N1, mapNormalGS::value_type& N2)			{	return (N1.second.ssa > N2.second.ssa);		}
 IC	bool	cmp_gs_mat			(mapMatrixGS::value_type& N1, mapMatrixGS::value_type& N2)			{	return (N1.second.ssa > N2.second.ssa);		}
+#endif
 
 IC	bool	cmp_cs_nrm			(mapNormalCS::value_type& N1, mapNormalCS::value_type& N2)			{	return (N1.second.ssa > N2.second.ssa);		}
 IC	bool	cmp_cs_mat			(mapMatrixCS::value_type& N1, mapMatrixCS::value_type& N2)			{	return (N1.second.ssa > N2.second.ssa);		}
@@ -248,6 +264,7 @@ void R_dsgraph_structure::r_dsgraph_render_graph(u32 _priority, bool)
 			{
 				RCache.set_VS(vs_it->first);
 
+#ifdef USE_DX11
 				//	GS setup
 				mapNormalGS& gs = vs_it->second;
 				gs.ssa = 0;
@@ -260,76 +277,84 @@ void R_dsgraph_structure::r_dsgraph_render_graph(u32 _priority, bool)
 					RCache.set_GS(gs_it->first);
 
 					mapNormalPS& ps = gs_it->second;
+#else
+				mapNormalPS& ps = vs_it->second;
+#endif
+				ps.ssa = 0;
 
-				    ps.ssa = 0;
+				nrmPS.reserve(ps.size());
+				for (auto &i : ps) nrmPS.push_back(&i);
+				concurrency::parallel_sort(nrmPS.begin(), nrmPS.end(), cmp_ps_second_ssa<mapNormalPS::value_type *>);
+				for (auto &ps_it : nrmPS)
+				{
+					RCache.set_PS(ps_it->first);
+#ifdef USE_DX11
+					RCache.set_HS(ps_it->second.hs);
+					RCache.set_DS(ps_it->second.ds);
 
-				    nrmPS.reserve(ps.size());
-				    for (auto &i : ps) nrmPS.push_back(&i);
-				    concurrency::parallel_sort(nrmPS.begin(), nrmPS.end(), cmp_ps_second_ssa<mapNormalPS::value_type *>);
-				    for (auto &ps_it : nrmPS)
-				    {
-					    RCache.set_PS(ps_it->first);
+					mapNormalCS& cs = ps_it->second.mapCS;
+#else
+					mapNormalCS& cs = ps_it->second;
+#endif
+					cs.ssa = 0;
 
-					    RCache.set_HS(ps_it->second.hs);
-					    RCache.set_DS(ps_it->second.ds);
+					nrmCS.reserve(cs.size());
+					for (auto &i : cs) nrmCS.push_back(&i);
+					concurrency::parallel_sort(nrmCS.begin(), nrmCS.end(), cmp_second_ssa<mapNormalCS::value_type *>);
+					for (auto &cs_it : nrmCS)
+					{
+						RCache.set_Constants(cs_it->first);
 
-					    mapNormalCS& cs = ps_it->second.mapCS;
+						mapNormalStates& states = cs_it->second;
+						states.ssa = 0;
 
-					    cs.ssa = 0;
+						nrmStates.reserve(states.size());
+						for (auto &i : states) nrmStates.push_back(&i);
+						concurrency::parallel_sort(nrmStates.begin(), nrmStates.end(), cmp_second_ssa<mapNormalStates::value_type *>);
+						for (auto &state_it : nrmStates)
+						{
+							RCache.set_States(*state_it->first);
 
-					    nrmCS.reserve(cs.size());
-					    for (auto &i : cs) nrmCS.push_back(&i);
-					    concurrency::parallel_sort(nrmCS.begin(), nrmCS.end(), cmp_second_ssa<mapNormalCS::value_type *>);
-					    for (auto &cs_it : nrmCS)
-					    {
-						    RCache.set_Constants(cs_it->first);
+							mapNormalTextures& tex = state_it->second;
+							tex.ssa = 0;
 
-						    mapNormalStates& states = cs_it->second;
-						    states.ssa = 0;
+							sort_tlist<mapNormalTextures>(nrmTextures, nrmTexturesTemp, tex);
+							for (auto &tex_it : nrmTextures)
+							{
+								RCache.set_Textures(tex_it->first);
+								RImplementation.apply_lmaterial();
 
-						    nrmStates.reserve(states.size());
-						    for (auto &i : states) nrmStates.push_back(&i);
-						    concurrency::parallel_sort(nrmStates.begin(), nrmStates.end(), cmp_second_ssa<mapNormalStates::value_type *>);
-						    for (auto &state_it : nrmStates)
-						    {
-							    RCache.set_States(*state_it->first);
+								mapNormalItems& items = tex_it->second;
+								items.ssa = 0;
 
-							    mapNormalTextures& tex = state_it->second;
-							    tex.ssa = 0;
-
-							    sort_tlist<mapNormalTextures>(nrmTextures, nrmTexturesTemp, tex);
-							    for (auto &tex_it : nrmTextures)
-							    {
-								    RCache.set_Textures(tex_it->first);
-								    RImplementation.apply_lmaterial();
-
-								    mapNormalItems& items = tex_it->second;
-								    items.ssa = 0;
-
-								    concurrency::parallel_sort(items.begin(), items.end(), cmp_ssa<_NormalItem>);
-								    for (auto &it_it : items)
-								    {
-									    float LOD = calcLOD(it_it.ssa, it_it.pVisual->vis.sphere.R);
-									    RCache.LOD.set_LOD(LOD);
-									    it_it.pVisual->Render(LOD);
-								    }
-								    items.clear();
-							    }
-							    nrmTexturesTemp.clear();
-							    nrmTextures.clear();
-							    tex.clear();
-						    }
-						    nrmStates.clear();
-						    states.clear();
-					    }
-					    nrmCS.clear();
-					    cs.clear();
-				    }
-				    nrmPS.clear();
-				    ps.clear();
-				    }
-			    nrmGS.clear();
-			    gs.clear();
+								concurrency::parallel_sort(items.begin(), items.end(), cmp_ssa<_NormalItem>);
+								for (auto &it_it : items)
+								{
+									float LOD = calcLOD(it_it.ssa, it_it.pVisual->vis.sphere.R);
+#ifdef USE_DX11
+									RCache.LOD.set_LOD(LOD);
+#endif
+									it_it.pVisual->Render(LOD);
+								}
+								items.clear();
+							}
+							nrmTexturesTemp.clear();
+							nrmTextures.clear();
+							tex.clear();
+						}
+						nrmStates.clear();
+						states.clear();
+					}
+					nrmCS.clear();
+					cs.clear();
+				}
+				nrmPS.clear();
+				ps.clear();
+#ifdef USE_DX11
+				}
+			nrmGS.clear();
+			gs.clear();
+#endif
 			}
 		nrmVS.clear();
 		vs.clear();
@@ -351,6 +376,7 @@ for (u32 iPass = 0; iPass < SHADER_PASSES_MAX; ++iPass)
 	{
 		RCache.set_VS(vs_id->first);
 
+#ifdef USE_DX11
 		mapMatrixGS& gs = vs_id->second;
 		gs.ssa = 0;
 
@@ -362,79 +388,88 @@ for (u32 iPass = 0; iPass < SHADER_PASSES_MAX; ++iPass)
 			RCache.set_GS(gs_it->first);
 
 			mapMatrixPS& ps = gs_it->second;
+#else
+		mapMatrixPS& ps = vs_id->second;
+#endif
+		ps.ssa = 0;
 
-		    ps.ssa = 0;
+		matPS.reserve(ps.size());
+		for (auto &i : ps) matPS.push_back(&i);
+		concurrency::parallel_sort(matPS.begin(), matPS.end(), cmp_ps_second_ssa<mapMatrixPS::value_type *>);
+		for (auto &ps_it : matPS)
+		{
+			RCache.set_PS(ps_it->first);
+#ifdef USE_DX11
+			RCache.set_HS(ps_it->second.hs);
+			RCache.set_DS(ps_it->second.ds);
 
-		    matPS.reserve(ps.size());
-		    for (auto &i : ps) matPS.push_back(&i);
-		    concurrency::parallel_sort(matPS.begin(), matPS.end(), cmp_ps_second_ssa<mapMatrixPS::value_type *>);
-		    for (auto &ps_it : matPS)
-		    {
-			    RCache.set_PS(ps_it->first);
+			mapMatrixCS& cs = ps_it->second.mapCS;
+#else
+			mapMatrixCS& cs = ps_it->second;
+#endif
+			cs.ssa = 0;
 
-			    RCache.set_HS(ps_it->second.hs);
-			    RCache.set_DS(ps_it->second.ds);
+			matCS.reserve(cs.size());
+			for (auto &i : cs) matCS.push_back(&i);
+			concurrency::parallel_sort(matCS.begin(), matCS.end(), cmp_second_ssa<mapMatrixCS::value_type *>);
+			for (auto &cs_it : matCS)
+			{
+				RCache.set_Constants(cs_it->first);
 
-			    mapMatrixCS& cs = ps_it->second.mapCS;
+				mapMatrixStates& states = cs_it->second;
+				states.ssa = 0;
 
-			    cs.ssa = 0;
+				matStates.reserve(states.size());
+				for (auto &i : states) matStates.push_back(&i);
+				concurrency::parallel_sort(matStates.begin(), matStates.end(), cmp_second_ssa<mapMatrixStates::value_type *>);
+				for (auto &state_it : matStates)
+				{
+					RCache.set_States(*state_it->first);
 
-			    matCS.reserve(cs.size());
-			    for (auto &i : cs) matCS.push_back(&i);
-			    concurrency::parallel_sort(matCS.begin(), matCS.end(), cmp_second_ssa<mapMatrixCS::value_type *>);
-			    for (auto &cs_it : matCS)
-			    {
-				    RCache.set_Constants(cs_it->first);
+					mapMatrixTextures& tex = state_it->second;
+					tex.ssa = 0;
 
-				    mapMatrixStates& states = cs_it->second;
-				    states.ssa = 0;
+					sort_tlist<mapMatrixTextures>(matTextures, matTexturesTemp, tex);
+					for (auto &tex_it : matTextures)
+					{
+						RCache.set_Textures(tex_it->first);
+						RImplementation.apply_lmaterial();
 
-				    matStates.reserve(states.size());
-				    for (auto &i : states) matStates.push_back(&i);
-				    concurrency::parallel_sort(matStates.begin(), matStates.end(), cmp_second_ssa<mapMatrixStates::value_type *>);
-				    for (auto &state_it : matStates)
-				    {
-					    RCache.set_States(*state_it->first);
+						mapMatrixItems& items = tex_it->second;
+						items.ssa = 0;
 
-					    mapMatrixTextures& tex = state_it->second;
-					    tex.ssa = 0;
+						concurrency::parallel_sort(items.begin(), items.end(), cmp_ssa<_MatrixItem>);
+						for (auto &ni_it : items)
+						{
+							RCache.set_xform_world(ni_it.Matrix);
+							RImplementation.apply_object(ni_it.pObject);
+							RImplementation.apply_lmaterial();
 
-					    sort_tlist<mapMatrixTextures>(matTextures, matTexturesTemp, tex);
-					    for (auto &tex_it : matTextures)
-					    {
-						    RCache.set_Textures(tex_it->first);
-						    RImplementation.apply_lmaterial();
-
-						    mapMatrixItems& items = tex_it->second;
-						    items.ssa = 0;
-
-						    concurrency::parallel_sort(items.begin(), items.end(), cmp_ssa<_MatrixItem>);
-						    for (auto &ni_it : items)
-						    {
-							    RCache.set_xform_world(ni_it.Matrix);
-							    RImplementation.apply_object(ni_it.pObject);
-							    RImplementation.apply_lmaterial();
-
-							    float LOD = calcLOD(ni_it.ssa, ni_it.pVisual->vis.sphere.R);
-							    RCache.LOD.set_LOD(LOD);
-							    ni_it.pVisual->Render(LOD);
-						    }
-						    items.clear();
-					    }
-					    matTexturesTemp.clear();
-					    matTextures.clear();
-					    tex.clear();
-				    }
-				    matStates.clear();
-				    states.clear();
-			    }
-			    matCS.clear();
-			    cs.clear();
-		    }
-		    matPS.clear();
-		    ps.clear();
+							float LOD = calcLOD(ni_it.ssa, ni_it.pVisual->vis.sphere.R);
+#ifdef USE_DX11
+							RCache.LOD.set_LOD(LOD);
+#endif
+							ni_it.pVisual->Render(LOD);
+						}
+						items.clear();
+					}
+					matTexturesTemp.clear();
+					matTextures.clear();
+					tex.clear();
+				}
+				matStates.clear();
+				states.clear();
+			}
+			matCS.clear();
+			cs.clear();
 		}
-	    matGS.clear();
+		matPS.clear();
+		ps.clear();
+#ifdef USE_DX11
+		}
+	matGS.clear();
+	gs.clear();
+#endif
 	}
 matVS.clear();
 vs.clear();

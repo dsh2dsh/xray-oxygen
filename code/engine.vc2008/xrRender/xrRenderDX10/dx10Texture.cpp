@@ -5,6 +5,10 @@
 #include "stdafx.h"
 #pragma hdrstop
 
+#pragma warning(disable:4995)
+#include <d3dx9.h>
+#pragma warning(default:4995)
+
 #include <D3DX10Tex.h>
 
 #include "../xrRender/dxRenderDeviceRender.h"
@@ -79,15 +83,21 @@ void				TW_Save	(ID3DTexture2D* T, LPCSTR name, LPCSTR prefix, LPCSTR postfix)
 		if ('\\'==fn[it])	fn[it]	= '_';
 	string256		fn2;	strconcat	(sizeof(fn2),fn2,"debug\\",fn,".dds");
 	Log						("* debug texture save: ",fn2);
-
+#ifdef USE_DX11
 	R_CHK					(D3DX11SaveTextureToFile(HW.pContext, T, D3DX11_IFF_DDS, fn2));
+#else
+	R_CHK					(D3DX10SaveTextureToFile(T, D3DX10_IFF_DDS, fn2));
+#endif
 }
 
 ID3DBaseTexture*	CRender::texture_load(LPCSTR fRName, u32& ret_msize, bool bStaging)
 {
 	//	Moved here just to avoid warning
+#ifdef USE_DX11
 	D3DX11_IMAGE_INFO			IMG;
-
+#else
+	D3DX10_IMAGE_INFO			IMG;
+#endif
     std::memset(&IMG,0,sizeof(IMG));
 
 	//	Staging control
@@ -132,17 +142,22 @@ _DDS:
 #endif // DEBUG
 		img_size				= S->length	();
 		R_ASSERT				(S);
-
+#ifdef USE_DX11
 		R_CHK2 (D3DX11GetImageInfoFromMemory(S->pointer(),S->length(), 0, &IMG, 0), fn);
-
+#else
+		R_CHK2 (D3DX10GetImageInfoFromMemory(S->pointer(),S->length(), 0, &IMG, 0), fn);
+#endif
 		if (IMG.MiscFlags & D3D_RESOURCE_MISC_TEXTURECUBE)			goto _DDS_CUBE;
 		else														goto _DDS_2D;
 
 _DDS_CUBE:
 		{
 			//	Inited to default by provided default constructor
+#ifdef USE_DX11
 			D3DX11_IMAGE_LOAD_INFO LoadInfo;
-
+#else
+			D3DX10_IMAGE_LOAD_INFO LoadInfo;
+#endif
 			if (bStaging)
 			{
 				LoadInfo.Usage = D3D_USAGE_STAGING;
@@ -157,7 +172,11 @@ _DDS_CUBE:
 			
 			LoadInfo.pSrcInfo = &IMG;
 
+#ifdef USE_DX11
 			R_CHK(D3DX11CreateTextureFromMemory(HW.pDevice, S->pointer(),S->length(), &LoadInfo, 0, &pTexture2D, 0));
+#else
+			R_CHK(D3DX10CreateTextureFromMemory(HW.pDevice, S->pointer(),S->length(), &LoadInfo, 0, &pTexture2D, 0));
+#endif
 
 			FS.r_close				(S);
 
@@ -173,8 +192,11 @@ _DDS_2D:
 			img_loaded_lod			= get_texture_load_lod(fn);
 
 			//	Inited to default by provided default constructor
-
+#ifdef USE_DX11
 			D3DX11_IMAGE_LOAD_INFO LoadInfo;
+#else
+			D3DX10_IMAGE_LOAD_INFO LoadInfo;
+#endif
 
 			LoadInfo.FirstMipLevel = img_loaded_lod;
 			LoadInfo.Width	= IMG.Width;
@@ -193,8 +215,11 @@ _DDS_2D:
 			}
 			LoadInfo.pSrcInfo = &IMG;
 
+#ifdef USE_DX11
 			R_CHK2(D3DX11CreateTextureFromMemory(HW.pDevice,S->pointer(),S->length(), &LoadInfo, 0, &pTexture2D, 0), fn);
-
+#else
+			R_CHK2(D3DX10CreateTextureFromMemory(HW.pDevice,S->pointer(),S->length(), &LoadInfo, 0, &pTexture2D, 0), fn);
+#endif
 			FS.r_close				(S);
 			mip_cnt					= IMG.MipLevels;
 

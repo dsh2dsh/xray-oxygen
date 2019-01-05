@@ -338,9 +338,6 @@
     <ClCompile Include="CPU\xrSkin2W_thread.cpp" />
     <ClCompile Include="date_time.cpp" />
     <ClCompile Include="defines.cpp" />
-    <ClCompile Include="Device_Window.cpp" />
-    <ClCompile Include="Device_Window_EditorDLL.cpp" />
-    <ClCompile Include="Device_Window_Messages.cpp" />
     <ClCompile Include="DiscordRichPresense.cpp" />
     <ClCompile Include="IGame_AnselSDK.cpp" />
     <ClCompile Include="spectre\ExternalCallbackTypes.cpp" />

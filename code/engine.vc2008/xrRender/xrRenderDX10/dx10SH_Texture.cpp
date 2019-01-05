@@ -223,6 +223,7 @@ void CTexture::Apply(u32 dwStage)
 	{
 		SRVSManager.SetGSResource(dwStage-rstGeometry, m_pSRView);
 	}
+#ifdef USE_DX11
 	else if (dwStage<rstDomain)	//	Geometry shader stage resources
 	{
 		SRVSManager.SetHSResource(dwStage-rstHull, m_pSRView);
@@ -235,6 +236,7 @@ void CTexture::Apply(u32 dwStage)
 	{
 		SRVSManager.SetCSResource(dwStage-rstCompute, m_pSRView);
 	}
+#endif
 	else
 		VERIFY("Invalid stage");
 }
@@ -256,14 +258,20 @@ void CTexture::apply_theora(u32 dwStage)
 
 		u32 _w				= pTheora->Width(false);
 
+#ifdef USE_DX11
 		R_CHK				(HW.pContext->Map(T2D, 0, D3D_MAP_WRITE_DISCARD, 0, &mapData));
-
+#else
+		R_CHK				(T2D->Map(0,D3D_MAP_WRITE_DISCARD,0,&mapData));
+#endif
 		R_ASSERT			(mapData.RowPitch == int(pTheora->Width(false)*4));
 		int _pos			= 0;
 		pTheora->DecompressFrame((u32*)mapData.pData, _w - rect.right, _pos);
 		VERIFY				(u32(_pos) == rect.bottom*_w);
-
+#ifdef USE_DX11
 		HW.pContext->Unmap(T2D, 0);
+#else
+		T2D->Unmap(0);
+#endif
 	}
 	Apply(dwStage);
 };
@@ -277,13 +285,19 @@ void CTexture::apply_avi	(u32 dwStage)
 		D3D_MAPPED_TEXTURE2D	mapData;
 
 		// AVI
+#ifdef USE_DX11
 		R_CHK(HW.pContext->Map(T2D, 0, D3D_MAP_WRITE_DISCARD, 0, &mapData));
-
+#else
+		R_CHK	(T2D->Map(0,D3D_MAP_WRITE_DISCARD,0,&mapData));
+#endif
 		R_ASSERT(mapData.RowPitch == int(pAVI->m_dwWidth*4));
 		BYTE* ptr; pAVI->GetFrame(&ptr);
         std::memcpy(mapData.pData,ptr,pAVI->m_dwWidth*pAVI->m_dwHeight*4);
-
+#ifdef USE_DX11
 		HW.pContext->Unmap(T2D, 0);
+#else
+		T2D->Unmap(0);
+#endif
 	}
 	Apply(dwStage);
 };

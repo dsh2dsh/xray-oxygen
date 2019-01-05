@@ -38,11 +38,12 @@ public:
 	void					set_SAMP(u32 a, u32 b, u32 c);
 	BOOL					equal	(SimulatorStates& S);
 	void					clear	();
-	
-	void	UpdateState( dx10State &state) const;
+	IDirect3DStateBlock9*	record	();
+#if defined(USE_DX11) || defined(USE_VK)
+	void	UpdateState(ID3DState &state) const;
 	void	UpdateDesc( D3D_RASTERIZER_DESC &desc ) const;
 	void	UpdateDesc( D3D_DEPTH_STENCIL_DESC &desc ) const;
 	void	UpdateDesc( D3D_BLEND_DESC &desc ) const;
 	void	UpdateDesc( D3D_SAMPLER_DESC descArray[D3D_COMMONSHADER_SAMPLER_SLOT_COUNT], bool SamplerUsed[D3D_COMMONSHADER_SAMPLER_SLOT_COUNT], int iBaseSamplerIndex ) const;
-
+#endif
 };

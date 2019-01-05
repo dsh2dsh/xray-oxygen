@@ -23,8 +23,11 @@ public:
 	virtual void	Copy(IRenderDeviceRender &_in);
 
 	//	Gamma correction functions
+#ifdef USE_DX11
 	virtual DXGI_GAMMA_CONTROL	GetGammaLUT() const;
-
+#else
+	virtual D3DGAMMARAMP		GetGammaLUT() const;
+#endif
 	virtual float	GetGamma		() const;
 	virtual float	GetBrightness	() const;
 	virtual float	GetContrast		() const;
@@ -39,6 +42,7 @@ public:
 
 	//	Destroy
 	virtual void	OnDeviceDestroy( BOOL bKeepTextures);
+	virtual void	ValidateHW();
 	virtual void	DestroyHW();
 	virtual void	Reset( HWND hWnd, u32 &dwWidth, u32 &dwHeight, float &fWidth_2, float &fHeight_2);
 
@@ -62,6 +66,7 @@ public:
 	virtual bool	HWSupportsShaderYUV2RGB();
 
 	//	Device state
+	virtual DeviceState GetDeviceState();
 	virtual BOOL	GetForceGPU_REF();
 	virtual u32		GetCacheStatPolys();
 	virtual void	Begin();

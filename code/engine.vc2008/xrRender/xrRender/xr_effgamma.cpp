@@ -14,6 +14,7 @@ void CGammaControl::GetIP(float& G, float &B, float& C, Fvector& Balance)
 	Balance.set(cBalance);
 }
 
+#ifdef USE_DX11
 void CGammaControl::Update() 
 {
 	if (HW.pDevice) 
@@ -61,4 +62,35 @@ void CGammaControl::GenLUT()
 	}
 }
 
+#else
 
+IC u16 clr2gamma(float c)
+{
+	int C = iFloor(c);
+	clamp(C, 0, 65535);
+	return u16(C);
+}
+
+void CGammaControl::Update() 
+{
+	if (HW.pDevice) 
+	{
+		GenLUT();
+		HW.pDevice->SetGammaRamp(0, D3DSGR_CALIBRATE, &G);
+	}
+}
+void CGammaControl::GenLUT()
+{
+	float og = 1.f / (fGamma + EPS);
+	float B = fBrightness / 2.f;
+	float C = fContrast / 2.f;
+
+	for (u32 i = 0; i < 256; i++)
+	{
+		float c = (C + .5f)*powf(i / 255.f, og)*65535.f + (B - 0.5f)*32768.f - C * 32768.f + 16384.f;
+		G.red[i] = clr2gamma(c*cBalance.x);
+		G.green[i] = clr2gamma(c*cBalance.y);
+		G.blue[i] = clr2gamma(c*cBalance.z);
+	}
+}
+#endif

@@ -22,7 +22,7 @@
 
 #include "../xrRender/xrD3DDefs.h"
 
-#include "DX11EventWrapper.h"
+#include "../xrRender/Debug/dxPixEventWrapper.h"
 
 #define		R_R1	1
 #define		R_R2	2

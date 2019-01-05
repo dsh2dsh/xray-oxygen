@@ -6,6 +6,8 @@ typedef	ID3D10Include			ID3DInclude;
 typedef	ID3D10Blob				ID3DBlob;
 
 typedef	D3D10_SHADER_MACRO				D3D_SHADER_MACRO;
+
+#ifdef USE_DX11
 typedef	D3D11_BLEND						D3D_BLEND;
 typedef	D3D11_BLEND_OP					D3D_BLEND_OP;
 typedef	D3D11_TEXTURE_ADDRESS_MODE		D3D_TEXTURE_ADDRESS_MODE;
@@ -253,6 +255,7 @@ typedef	ID3D11ShaderReflectionType						ID3DShaderReflectionType;
 
 
 #define	IID_ID3DShaderReflection	IID_ID3D11ShaderReflection
+#endif
 
 typedef	dx10State				ID3DState;
 #define DX10_ONLY(expr)			expr

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "igame_level.h"
 #include "xr_ioconsole.h"
 #include "xr_ioc_cmd.h"
@@ -437,7 +437,7 @@ class CCC_Renderer : public CCC_Token
 public:
 	CCC_Renderer(LPCSTR N) : inherited(N, &renderer_value, NULL)
 	{
-		renderer_value = 0; 
+		renderer_value = 3; 
 	};
 	virtual ~CCC_Renderer()
 	{
@@ -451,12 +451,12 @@ public:
 
 			inherited::Execute(args);
 
-			// 0 - r4
-            // 1 - r4 extendet
-			psDeviceFlags.set(rsR4, (renderer_value == 0));
-            psDeviceFlags.set(rsR4ext, (renderer_value == 1));
+			// 0..2 - r2
+			// 3 - r4
+			psDeviceFlags.set(rsR2, ((renderer_value >= 0) && renderer_value < 3));
+			psDeviceFlags.set(rsR4, (renderer_value == 3));
 
-			r2_advanced_pp = TRUE;
+			r2_advanced_pp = (renderer_value >= 3);
 
 			isLoaded--;
 		}

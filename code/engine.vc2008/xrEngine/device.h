@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 // Note:
 // ZNear - always 0.0f
 // ZFar  - always 1.0f
@@ -139,6 +139,9 @@ public:
 	};
 
 private:
+    // Main objects used for creating and rendering the 3D scene
+    u64										m_dwWindowStyle;
+
 	CTimer									TimerMM;
 
 	void									_Create		(LPCSTR shName);
@@ -151,6 +154,7 @@ public:
 	u32										dwPrecacheTotal;
 
 	float									fWidth_2, fHeight_2;
+	void									OnWM_Activate(WPARAM wParam, LPARAM lParam);
 public:
 	IRenderDeviceRender						*m_pRender;
 
@@ -235,8 +239,7 @@ public:
 
 	void Initialize							();
 	HWND CreateXRayWindow (HWND parent = nullptr, int Width = 0, int Height = 0);
-	
-    //void ShutDown							();
+	void ShutDown							();
 
     void UpdateWindowPropStyle              (WindowPropStyle PropStyle = (WindowPropStyle)ps_vid_windowtype);
 
@@ -300,61 +303,6 @@ private:
 	editor::ide					*m_editor;
 	engine_impl					*m_engine;
 #endif // #ifdef INGAME_EDITOR
-public: // frowrik code for window
-    s32                         MainWindowPosX = 0;    
-    s32                         MainWindowPosY = 0;
-    u32                         MainWindowWidth = 1;    // Client rect Width
-    u32                         MainWindowHeight = 1;   // Client rect Height
-    u32                         MainWindowMinWidth = 1;    
-    u32                         MainWindowMinHeight = 1;  
-    HWND                        MainWindowParent = nullptr;
-    HWND                        MainWindowHandle = nullptr;
-    WNDCLASSEXW                 MainWindowClass = {0};
-    DWORD                       MainWindowStyleEx = 0;
-    DWORD                       MainWindowStyle = 0;
-    RECT                        WindowRect = {0};
-    RECT                        ClientRect = {0};
-    bool                        bFlagShow = false;
-    bool                        bFlagMinimize  = false;
-    bool                        bFlagMaximize  = false;
-    bool                        bFlagResizeing = false;
-    bool                        bFlagActive = false;
-    bool                        bFlagPrevMouseOnClient = false; // в прошлый раз мышка была над окном
-    HMONITOR                    MonitorHandle  = nullptr; // хандл монитора
-    s32                         MonitorPosX = 0; // размеры монитора чтобы знать какой размер для псевдо-полноэкранного делать
-    s32                         MonitorPosY = 0;
-    s32                         MonitorWidth = 1;
-    s32                         MonitorHeight = 1;
-    bool                        bMonitorSizeShowMenubar = true; // можно не скрывать мену пуск если нужно
-
-    static LRESULT CALLBACK     GlobalMainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
-    bool                        CreateEngineWindow( HWND hWndParent = nullptr, s32 Width = 1, s32 Height = 1 );
-    void                        DestroyEngineWindow();
-
-    bool				        MainWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT &result);
-public: // command for window
-     
-private:
-    void                        UpdateWindowPosAndSize();
-    void                        UpdateWindowPosMonitor();
-    void                        MessageAltEnter();
-    bool                        MessageClose();
-    void                        MessageHide();
-    void                        MessageShow();
-    void                        MessageMove();
-    void                        MessageResizeBegin();
-    void                        MessageResize();
-    void                        MessageResizeEnd();
-    void                        MessageActive();
-    void                        MessageInactive();
-    void                        MessageSetCursor();
-    // сохранить переменный для правельного изменения полноэкранного-оконного режима
-    s32                         SavePosX = 0;    
-    s32                         SavePosY = 0;
-    u32                         SaveWidth = 1;    // Client rect Width
-    u32                         SaveHeight = 1;   // Client rect Height
-    u32                         SaveWidthWin = 1;    
-    u32                         SaveHeightWin  = 1;  
 };
 
 extern		ENGINE_API		CRenderDevice		Device;

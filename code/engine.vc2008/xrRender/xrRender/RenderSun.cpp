@@ -510,11 +510,13 @@ void CRender::render_sun()
 	// Accumulate
 	Target->phase_accumulator();
 
+#ifdef USE_DX11
 	if (Target->use_minmax_sm_this_frame())
 	{
 		PIX_EVENT(SE_SUN_FAR_MINMAX_GENERATE);
 		Target->create_minmax_SM();
 	}
+#endif
 
 	PIX_EVENT(SE_SUN_FAR);
 	Target->accum_direct(SE_SUN_FAR);
@@ -716,11 +718,13 @@ void CRender::render_sun_near()
 	// Accumulate
 	Target->phase_accumulator();
 
+#ifdef USE_DX11
 	if (Target->use_minmax_sm_this_frame())
 	{
 		PIX_EVENT(SE_SUN_FAR_MINMAX_GENERATE);
 		Target->create_minmax_SM();
 	}
+#endif
 
 	PIX_EVENT(SE_SUN_NEAR);
 	Target->accum_direct(SE_SUN_NEAR);
@@ -1026,11 +1030,13 @@ void CRender::render_sun_cascade(u32 cascade_ind)
 	// Accumulate
 	Target->phase_accumulator();
 
+#ifdef USE_DX11
 	if (Target->use_minmax_sm_this_frame())
 	{
 		PIX_EVENT(SE_SUN_NEAR_MINMAX_GENERATE);
 		Target->create_minmax_SM();
 	}
+#endif
 
 	PIX_EVENT(SE_SUN_NEAR);
 

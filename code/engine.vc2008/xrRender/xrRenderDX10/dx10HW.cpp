@@ -5,6 +5,7 @@
 #pragma hdrstop
 #include <VersionHelpers.h>
 #pragma warning(disable:4995)
+#include <d3dx9.h>
 #include <dxgi1_4.h>
 #pragma warning(default:4995)
 #include "../xrRender/HW.h"
@@ -145,7 +146,8 @@ void CHW::CreateDevice(HWND m_hWnd, bool move_window)
 		D3D_FEATURE_LEVEL_11_1,
 		D3D_FEATURE_LEVEL_11_0,
 		D3D_FEATURE_LEVEL_10_1,
-		D3D_FEATURE_LEVEL_10_0
+		D3D_FEATURE_LEVEL_10_0,
+		D3D_FEATURE_LEVEL_9_3,
 	};
 	HRESULT R;
 
@@ -207,10 +209,6 @@ void CHW::CreateDevice(HWND m_hWnd, bool move_window)
 	};
 	R_CHK(R);
 
-
-	// main anotation
-	R_CHK(pContext->QueryInterface(__uuidof(ID3DUserDefinedAnnotation), (void **)&Annotation));
-	
 	_SHOW_REF("* CREATE: DeviceREF:", HW.pDevice);
 	//	Create render target and depth-stencil views here
 	UpdateViews();
@@ -222,9 +220,6 @@ void CHW::CreateDevice(HWND m_hWnd, bool move_window)
 
 void CHW::DestroyDevice()
 {
-	// main anotation
-	_RELEASE(Annotation);
-	
 	//	Destroy state managers
 	StateManager.Reset();
 	RSManager.ClearStateArray();

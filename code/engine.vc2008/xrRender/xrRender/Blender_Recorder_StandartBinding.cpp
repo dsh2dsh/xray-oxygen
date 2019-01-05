@@ -1,6 +1,11 @@
 #include "stdafx.h"
 #pragma hdrstop
 
+#pragma warning(push)
+#pragma warning(disable:4995)
+#include <d3dx9.h>
+#pragma warning(pop)
+
 #include "ResourceManager.h"
 #include "blenders\Blender_Recorder.h"
 #include "blenders\Blender.h"
@@ -68,6 +73,7 @@ static class cl_texgen : public R_constant_setup
 	virtual void setup(R_constant* C)
 	{
 		Fmatrix mTexgen;
+#ifdef USE_DX11
 		Fmatrix mTexelAdjust = 
 		{
 			0.5f,				0.0f,				0.0f,			0.0f,
@@ -75,6 +81,19 @@ static class cl_texgen : public R_constant_setup
 			0.0f,				0.0f,				1.0f,			0.0f,
 			0.5f,				0.5f,				0.0f,			1.0f
 		};
+#else
+		float _w	= float(RDEVICE.dwWidth);
+		float _h	= float(RDEVICE.dwHeight);
+		float o_w	= (0.5f / _w);
+		float o_h	= (0.5f / _h);
+		Fmatrix mTexelAdjust = 
+		{
+			0.5f,				0.0f,				0.0f,			0.0f,
+			0.0f,				-0.5f,				0.0f,			0.0f,
+			0.0f,				0.0f,				1.0f,			0.0f,
+			0.5f + o_w,			0.5f + o_h,			0.0f,			1.0f
+		};
+#endif
 		mTexgen.mul(mTexelAdjust, RCache.xforms.m_wvp);
 		RCache.set_c(C, mTexgen);
 	}
@@ -85,6 +104,7 @@ static class cl_VPtexgen : public R_constant_setup
 	virtual void setup(R_constant* C)
 	{
 		Fmatrix mTexgen;
+#ifdef USE_DX11
 		Fmatrix mTexelAdjust = 
 		{
 			0.5f,				0.0f,				0.0f,			0.0f,
@@ -92,6 +112,19 @@ static class cl_VPtexgen : public R_constant_setup
 			0.0f,				0.0f,				1.0f,			0.0f,
 			0.5f,				0.5f,				0.0f,			1.0f
 		};
+#else
+		float _w	= float(RDEVICE.dwWidth);
+		float _h	= float(RDEVICE.dwHeight);
+		float o_w	= (0.5f / _w);
+		float o_h	= (0.5f / _h);
+		Fmatrix mTexelAdjust = 
+		{
+			0.5f,				0.0f,				0.0f,			0.0f,
+			0.0f,				-0.5f,				0.0f,			0.0f,
+			0.0f,				0.0f,				1.0f,			0.0f,
+			0.5f + o_w,			0.5f + o_h,			0.0f,			1.0f
+		};
+#endif
 		mTexgen.mul(mTexelAdjust,RCache.xforms.m_vp);
 		RCache.set_c(C, mTexgen);
 	}
@@ -386,7 +419,7 @@ static class cl_sun_shafts_intensity : public R_constant_setup
 	}
 } binder_sun_shafts_intensity;
 
-
+#ifdef USE_DX11
 static class cl_alpha_ref : public R_constant_setup
 {
 	virtual void setup(R_constant* C)
@@ -395,6 +428,7 @@ static class cl_alpha_ref : public R_constant_setup
 	}
 } binder_alpha_ref;
 
+#ifdef USE_DX11
 static class cl_LOD : public R_constant_setup
 {
 	virtual void setup(R_constant* C)
@@ -402,7 +436,8 @@ static class cl_LOD : public R_constant_setup
 		RCache.LOD.set_LOD(C);
 	}
 } binder_LOD;
-
+#endif
+#endif
 
 
 // Standart constant-binding
@@ -475,9 +510,14 @@ void CBlender_Compile::SetMapping()
 	// Screen parameters
 	r_Constant				("screen_res",					&binder_screen_res);
 	r_Constant				("pos_decompression_params",	&binder_pos_decompress_params);
-	r_Constant				("m_AlphaRef",		&binder_alpha_ref);
-	r_Constant				("triLOD",			&binder_LOD);
 
+
+#ifdef USE_DX11
+	r_Constant				("m_AlphaRef",		&binder_alpha_ref);
+#ifdef USE_DX11
+	r_Constant				("triLOD",			&binder_LOD);
+#endif
+#endif
 
 	// detail
 	//if (bDetail	&& detail_scaler)
